@@ -10,8 +10,16 @@ RUN npm run build
 # Etapa 2: imagen final con PHP + Nginx
 FROM webdevops/php-nginx:8.3-alpine
 
+RUN apk add --no-cache \
+    oniguruma-dev \
+    libzip-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    freetype-dev
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
 RUN docker-php-ext-install \
-    pdo_mysql \
     mbstring \
     bcmath \
     gd \
