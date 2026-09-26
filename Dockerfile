@@ -25,10 +25,6 @@ RUN docker-php-ext-install \
     gd \
     exif \
     zip
-    
-RUN mkdir -p public/storage/products \
-    && chown -R application:application /app \
-    && chmod -R 775 storage bootstrap/cache public/storage
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -41,5 +37,6 @@ COPY --from=assets /app/public/build ./public/build
 
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
-RUN chown -R application:application /app \
+RUN mkdir -p public/storage/products \
+    && chown -R application:application /app \
     && chmod -R 775 storage bootstrap/cache public/storage
