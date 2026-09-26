@@ -25,6 +25,10 @@ RUN docker-php-ext-install \
     gd \
     exif \
     zip
+    
+RUN mkdir -p public/storage/products \
+    && chown -R application:application /app \
+    && chmod -R 775 storage bootstrap/cache public/storage
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
