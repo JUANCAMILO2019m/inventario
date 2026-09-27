@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
-Route::get('/debug-scheme', function (\Illuminate\Http\Request $request) {
+/*Route::get('/debug-scheme', function (\Illuminate\Http\Request $request) {
     return response()->json([
         'isSecure' => $request->isSecure(),
         'scheme' => $request->getScheme(),
@@ -20,7 +20,7 @@ Route::get('/debug-scheme', function (\Illuminate\Http\Request $request) {
             ->filter(fn ($v, $k) => str_contains($k, 'forwarded'))
             ->all(),
     ]);
-})->withoutMiddleware('web');
+})->withoutMiddleware('web');*/
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
