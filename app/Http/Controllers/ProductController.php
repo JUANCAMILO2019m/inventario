@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
@@ -64,29 +66,9 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        $filename = 'productos_' . now()->format('Y-m-d_His') . '.csv';
+        $filename = 'productos_' . now()->format('Y-m-d_His') . '.xlsx';
 
-        return response()->streamDownload(function () use ($products) {
-            $handle = fopen('php://output', 'w');
-            fwrite($handle, "\xEF\xBB\xBF");
-
-            fputcsv($handle, ['Nombre', 'Categoría', 'SKU', 'Cantidad', 'Stock mínimo', 'Ubicación', 'Precio', 'Notas']);
-
-            foreach ($products as $p) {
-                fputcsv($handle, [
-                    $p->name,
-                    $p->category?->name ?? '',
-                    $p->sku ?? '',
-                    $p->quantity,
-                    $p->min_stock,
-                    $p->location ?? '',
-                    $p->price ?? '',
-                    $p->notes ?? '',
-                ]);
-            }
-
-            fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv']);
+        return Excel::download(new ProductsExport($products), $filename);
     }
 
     public function create()

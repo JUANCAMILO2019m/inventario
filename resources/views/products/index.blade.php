@@ -45,7 +45,7 @@
             @endif
         </div>
         <a href="{{ route('products.export', request()->query()) }}"
-            class="px-4 py-2 rounded border border-green-600 text-green-700 hover:bg-green-50">
+        class="px-4 py-2 rounded border border-green-600 text-green-700 hover:bg-green-50">
             Exportar Excel
         </a>
     </form>
