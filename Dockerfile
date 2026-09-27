@@ -5,6 +5,8 @@ COPY package*.json ./
 RUN npm install
 COPY resources ./resources
 COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
 RUN npm run build
 
 # Etapa 2: imagen final con PHP + Nginx
