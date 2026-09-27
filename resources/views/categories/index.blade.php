@@ -5,10 +5,12 @@
 @section('content')
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">Categorías</h1>
-        <a href="{{ route('categories.create') }}"
+        @can('modify-inventory')
+            <a href="{{ route('categories.create') }}"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-            + Nueva categoría
-        </a>
+                + Nueva categoría
+            </a>
+        @endcan
     </div>
 
     {{-- Vista de tabla --}}
@@ -27,13 +29,15 @@
                     <td class="px-4 py-3 font-medium">{{ $c->name }}</td>
                     <td class="px-4 py-3">{{ $c->products_count }}</td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
-                        <a href="{{ route('categories.edit', $c) }}" class="text-blue-600 hover:underline">Editar</a>
-                        <form action="{{ route('categories.destroy', $c) }}" method="POST" class="inline"
-                              onsubmit="return confirm('¿Eliminar {{ $c->name }}? Sus {{ $c->products_count }} productos quedarán sin categoría.')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="text-red-600 hover:underline ml-3">Eliminar</button>
-                        </form>
+                        @can('modify-inventory')
+                            <a href="{{ route('categories.edit', $c) }}" class="text-blue-600 hover:underline">Editar</a>
+                            <form action="{{ route('categories.destroy', $c) }}" method="POST" class="inline"
+                                onsubmit="return confirm('¿Eliminar {{ $c->name }}? Sus {{ $c->products_count }} productos quedarán sin categoría.')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="text-red-600 hover:underline ml-3">Eliminar</button>
+                            </form>
+                        @endcan
                     </td>
                 </tr>
             @empty
@@ -53,14 +57,16 @@
                 <p class="font-semibold">{{ $c->name }}</p>
                 <p class="text-sm text-gray-500">{{ $c->products_count }} producto(s)</p>
             </div>
-            <div class="flex items-center gap-3 text-sm">
-                <a href="{{ route('categories.edit', $c) }}" class="text-blue-600 hover:underline">Editar</a>
-                <form action="{{ route('categories.destroy', $c) }}" method="POST"
-                      onsubmit="return confirm('¿Eliminar {{ $c->name }}? Sus {{ $c->products_count }} productos quedarán sin categoría.')">
-                    @csrf
-                    @method('DELETE')
-                    <button class="text-red-600 hover:underline">Eliminar</button>
-                </form>
+           <div class="flex items-center gap-3 text-sm">
+                @can('modify-inventory')
+                    <a href="{{ route('categories.edit', $c) }}" class="text-blue-600 hover:underline">Editar</a>
+                    <form action="{{ route('categories.destroy', $c) }}" method="POST"
+                        onsubmit="return confirm('¿Eliminar a {{ $c->name }}? Sus {{ $c->products_count }} productos quedarán sin categoría.')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="text-red-600 hover:underline">Eliminar</button>
+                    </form>
+                @endcan
             </div>
         </div>
     @empty

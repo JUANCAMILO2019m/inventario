@@ -13,7 +13,7 @@
         </div>
         <a href="{{ route('products.index') }}" class="text-blue-600 hover:underline">← Volver</a>
     </div>
-
+    @can('modify-inventory')
     <form action="{{ route('products.movements.store', $product) }}" method="POST"
           class="bg-white shadow rounded p-4 mb-4 flex flex-wrap items-end gap-3">
         @csrf
@@ -47,7 +47,7 @@
             @error('reason') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
         </div>
     </form>
-
+    @endcan
    {{-- Vista de tabla (pantallas medianas en adelante) --}}
 <div class="hidden md:block bg-white shadow rounded overflow-x-auto">
     <table class="w-full text-left">

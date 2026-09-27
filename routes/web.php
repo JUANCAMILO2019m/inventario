@@ -1,35 +1,38 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\StockMovementController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MovementController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
-/*Route::get('/debug-scheme', function (\Illuminate\Http\Request $request) {
-    return response()->json([
-        'isSecure' => $request->isSecure(),
-        'scheme' => $request->getScheme(),
-        'X-Forwarded-Proto' => $request->header('X-Forwarded-Proto'),
-        'X-Forwarded-Ssl' => $request->header('X-Forwarded-Ssl'),
-        'all_forwarded_headers' => collect($request->headers->all())
-            ->filter(fn ($v, $k) => str_contains($k, 'forwarded'))
-            ->all(),
-    ]);
-})->withoutMiddleware('web');*/
-
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Lectura: disponible para los tres roles (superadmin, admin, personal)
+    Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
+    Route::resource('products', ProductController::class)->only(['index']);
+    Route::resource('categories', CategoryController::class)->only(['index']);
+    Route::resource('products.movements', StockMovementController::class)->only(['index']);
     Route::get('/movements/export', [MovementController::class, 'export'])->name('movements.export');
     Route::get('/movements', [MovementController::class, 'index'])->name('movements.index');
-    Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
-    Route::resource('products', ProductController::class);
-    Route::resource('categories', CategoryController::class)->except(['show']);
-    Route::resource('products.movements', StockMovementController::class)->only(['index', 'store']);
+
+    // Escritura: solo superadmin y admin
+    Route::middleware('can:modify-inventory')->group(function () {
+        Route::resource('products', ProductController::class)->except(['index']);
+        Route::resource('categories', CategoryController::class)->except(['index']);
+        Route::resource('products.movements', StockMovementController::class)->only(['store']);
+    });
+
+    // Gestion de usuarios: solo superadmin
+    Route::middleware('can:manage-users')->group(function () {
+        Route::resource('users', UserController::class)->except(['show']);
+    });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

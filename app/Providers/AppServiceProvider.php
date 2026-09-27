@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Gate;
 use App\Mail\BrevoApiTransport;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,5 +30,8 @@ class AppServiceProvider extends ServiceProvider
         Mail::extend('brevo-api', function () {
         return new BrevoApiTransport(config('services.brevo.key'));
         });
+
+        Gate::define('manage-users', fn ($user) => $user->isSuperAdmin());
+        Gate::define('modify-inventory', fn ($user) => $user->canModify());
     }
 }

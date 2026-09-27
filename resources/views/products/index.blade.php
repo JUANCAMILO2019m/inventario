@@ -5,10 +5,12 @@
 @section('content')
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">Productos</h1>
-        <a href="{{ route('products.create') }}"
+        @can('modify-inventory')
+            <a href="{{ route('products.create') }}"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-            + Nuevo producto
-        </a>
+                + Nuevo producto
+            </a>
+        @endcan
     </div>
 
     <form method="GET" action="{{ route('products.index') }}"
@@ -86,13 +88,15 @@
                     <td class="px-4 py-3">{{ $p->price !== null ? '$' . number_format($p->price, 2) : '—' }}</td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
                         <a href="{{ route('products.movements.index', $p) }}" class="text-gray-700 hover:underline mr-3">Movimientos</a>
-                        <a href="{{ route('products.edit', $p) }}" class="text-blue-600 hover:underline">Editar</a>
-                        <form action="{{ route('products.destroy', $p) }}" method="POST" class="inline"
-                              onsubmit="return confirm('¿Eliminar {{ $p->name }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="text-red-600 hover:underline ml-3">Eliminar</button>
-                        </form>
+                        @can('modify-inventory')
+                            <a href="{{ route('products.edit', $p) }}" class="text-blue-600 hover:underline">Editar</a>
+                            <form action="{{ route('products.destroy', $p) }}" method="POST" class="inline"
+                                onsubmit="return confirm('¿Eliminar {{ $p->name }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="text-red-600 hover:underline ml-3">Eliminar</button>
+                            </form>
+                        @endcan
                     </td>
                 </tr>
             @empty
@@ -144,13 +148,15 @@
 
             <div class="flex items-center gap-4 mt-3 pt-3 border-t text-sm">
                 <a href="{{ route('products.movements.index', $p) }}" class="text-gray-700 hover:underline">Movimientos</a>
-                <a href="{{ route('products.edit', $p) }}" class="text-blue-600 hover:underline">Editar</a>
-                <form action="{{ route('products.destroy', $p) }}" method="POST"
+                @can('modify-inventory')
+                    <a href="{{ route('products.edit', $p) }}" class="text-blue-600 hover:underline">Editar</a>
+                    <form action="{{ route('products.destroy', $p) }}" method="POST"
                         onsubmit="return confirm('¿Eliminar {{ $p->name }}?')">
-                    @csrf
-                    @method('DELETE')
-                    <button class="text-red-600 hover:underline">Eliminar</button>
-                </form>
+                        @csrf
+                        @method('DELETE')
+                        <button class="text-red-600 hover:underline">Eliminar</button>
+                    </form>
+                @endcan
             </div>
         </div>
     @empty

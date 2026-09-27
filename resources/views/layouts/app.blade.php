@@ -14,18 +14,22 @@
                 <a href="{{ route('dashboard') }}" class="text-lg font-bold whitespace-nowrap">📦 Mi Inventario</a>
 
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                    @auth
                     <a href="{{ route('dashboard') }}" class="hover:underline">Dashboard</a>
                     <a href="{{ route('products.index') }}" class="hover:underline">Productos</a>
                     <a href="{{ route('categories.index') }}" class="hover:underline">Categorías</a>
                     <a href="{{ route('movements.index') }}" class="hover:underline">Historial</a>
 
-                    @auth
-                        <a href="{{ route('profile.edit') }}" class="hover:underline">{{ auth()->user()->name }}</a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button class="text-red-600 hover:underline">Salir</button>
-                        </form>
-                    @endauth
+                    @if (auth()->user()->isSuperAdmin())
+                        <a href="{{ route('users.index') }}" class="hover:underline">Usuarios</a>
+                    @endif
+
+                    <a href="{{ route('profile.edit') }}" class="hover:underline">{{ auth()->user()->name }}</a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button class="text-red-600 hover:underline">Salir</button>
+                    </form>
+                @endauth
                 </div>
             </div>
         </div>
