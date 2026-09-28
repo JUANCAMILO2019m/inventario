@@ -11,6 +11,14 @@ class Product extends Model
             'min_stock', 'location', 'price', 'notes', 'photo',
         ];
 
+        protected function casts(): array
+        {
+            return [
+                'quantity'  => 'float',
+                'min_stock' => 'float',
+            ];
+        }
+
         public function category()
         {
             return $this->belongsTo(Category::class);
@@ -24,22 +32,26 @@ class Product extends Model
          * Registra un movimiento y actualiza la cantidad.
          * 'in' suma, 'out' resta, 'adjust' fija la cantidad exacta.
          */
-        public function registerMovement(string $type, int $amount, ?string $reason = null): StockMovement
+        public function registerMovement(string $type, float $amount, ?string $reason = null): StockMovement
         {
             return DB::transaction(function () use ($type, $amount, $reason) {
-                $current = (int) $this->fresh()->quantity;
+                $current = round((float) $this->fresh()->quantity, 3);
 
-                $new = match ($type) {
+                $new = round(match ($type) {
                     'in'     => $current + $amount,
                     'out'    => $current - $amount,
                     'adjust' => $amount,
-                };
+                }, 3);
+
+                if ($new < 0) {
+                    throw new \InvalidArgumentException('La cantidad resultante no puede ser negativa.');
+                }
 
                 $this->update(['quantity' => $new]);
 
                 return $this->movements()->create([
                     'type'           => $type,
-                    'change'         => $new - $current,
+                    'change'         => round($new - $current, 3),
                     'quantity_after' => $new,
                     'reason'         => $reason,
                 ]);

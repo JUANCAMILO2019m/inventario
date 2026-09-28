@@ -81,7 +81,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $this->validated($request);
-        $initial = (int) $data['quantity'];
+        $initial = (float) $data['quantity'];
         $data['quantity'] = 0;
         unset($data['remove_photo']);
 
@@ -116,7 +116,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $data = $this->validated($request, $product);
-        $newQuantity = (int) $data['quantity'];
+        $newQuantity = (float) $data['quantity'];
         unset($data['quantity']);
 
         if ($request->boolean('remove_photo') && $product->photo) {
@@ -134,7 +134,7 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        if ($newQuantity !== (int) $product->quantity) {
+        if (abs($newQuantity - (float) $product->quantity) > 0.0005) {
             $product->registerMovement('adjust', $newQuantity, 'Ajuste desde edición');
         }
 
@@ -159,8 +159,8 @@ class ProductController extends Controller
             'name'        => 'required|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
             'sku'         => 'nullable|string|max:255|unique:products,sku,' . ($product?->id ?? 'NULL'),
-            'quantity'    => 'required|integer|min:0',
-            'min_stock'   => 'required|integer|min:0',
+            'quantity'  => 'required|numeric|min:0|decimal:0,3',
+            'min_stock' => 'required|numeric|min:0|decimal:0,3',
             'price'       => 'nullable|numeric|min:0',
             'location'    => 'nullable|string|max:255',
             'notes'       => 'nullable|string',

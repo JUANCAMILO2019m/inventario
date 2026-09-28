@@ -18,7 +18,7 @@ class StockMovementController extends Controller
     {
         $data = $request->validate([
             'type'   => 'required|in:in,out,adjust',
-            'amount' => ['required', 'integer', $request->type === 'adjust' ? 'min:0' : 'min:1'],
+            'amount' => ['required', 'numeric', 'decimal:0,3', $request->type === 'adjust' ? 'min:0' : 'gt:0'],
             'reason' => 'nullable|string|max:255',
         ]);
 
@@ -28,7 +28,7 @@ class StockMovementController extends Controller
             ]);
         }
 
-        $product->registerMovement($data['type'], (int) $data['amount'], $data['reason'] ?? null);
+        $product->registerMovement($data['type'], (float) $data['amount'], $data['reason'] ?? null);
 
         return redirect()->route('products.movements.index', $product)
             ->with('success', 'Movimiento registrado');

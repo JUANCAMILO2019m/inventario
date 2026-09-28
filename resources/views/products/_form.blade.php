@@ -73,13 +73,13 @@
 
     <div>
         <label class="block text-sm font-medium mb-1">Cantidad *</label>
-        <input type="number" min="0" name="quantity" value="{{ old('quantity', $product->quantity ?? 0) }}" class="{{ $field }}" required>
+        <input type="number" min="0" step="0.001" name="quantity" value="{{ old('quantity', $product->quantity ?? 0) }}" class="{{ $field }}" required>
         @error('quantity') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
     <div>
         <label class="block text-sm font-medium mb-1">Stock mínimo *</label>
-        <input type="number" min="0" name="min_stock" value="{{ old('min_stock', $product->min_stock ?? 0) }}" class="{{ $field }}" required>
+        <input type="number" min="0" step="0.001" name="min_stock" value="{{ old('min_stock', $product->min_stock ?? 0) }}" class="{{ $field }}" required>
         @error('min_stock') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 

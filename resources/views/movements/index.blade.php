@@ -15,7 +15,7 @@
     </div>
     @can('modify-inventory')
     <form action="{{ route('products.movements.store', $product) }}" method="POST"
-          class="bg-white shadow rounded p-4 mb-4 flex flex-wrap items-end gap-3">
+            class="bg-white shadow rounded p-4 mb-4 flex flex-wrap items-end gap-3">
         @csrf
 
         <div>
@@ -29,14 +29,14 @@
 
         <div>
             <label class="block text-sm font-medium mb-1">Cantidad</label>
-            <input type="number" min="0" name="amount" value="{{ old('amount') }}" required
-                   class="w-28 rounded border border-gray-300 px-3 py-2">
+            <input type="number" min="0" step="0.001" name="amount" value="{{ old('amount') }}" required
+                    class="w-28 rounded border border-gray-300 px-3 py-2">
         </div>
 
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium mb-1">Motivo</label>
             <input type="text" name="reason" value="{{ old('reason') }}" placeholder="Opcional"
-                   class="w-full rounded border border-gray-300 px-3 py-2">
+                    class="w-full rounded border border-gray-300 px-3 py-2">
         </div>
 
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Registrar</button>
@@ -48,7 +48,7 @@
         </div>
     </form>
     @endcan
-   {{-- Vista de tabla (pantallas medianas en adelante) --}}
+    {{-- Vista de tabla (pantallas medianas en adelante) --}}
 <div class="hidden md:block bg-white shadow rounded overflow-x-auto">
     <table class="w-full text-left">
         <thead class="bg-gray-50 text-sm uppercase text-gray-500">
