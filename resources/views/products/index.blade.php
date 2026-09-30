@@ -79,7 +79,7 @@
                     <td class="px-4 py-3 font-medium">{{ $p->name }}</td>
                     <td class="px-4 py-3">{{ $p->category?->name ?? '—' }}</td>
                     <td class="px-4 py-3">
-                        {{ $p->quantity }}
+                        {{ rtrim(rtrim(number_format($p->quantity, 3), '0'), '.') }} {{ $p->unit }}
                         @if ($p->quantity <= $p->min_stock)
                             <span class="ml-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Stock bajo</span>
                         @endif
@@ -130,7 +130,7 @@
                     <p class="text-sm text-gray-500">{{ $p->category?->name ?? 'Sin categoría' }}</p>
 
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="text-sm">Cantidad: <strong>{{ $p->quantity }}</strong></span>
+                        <span class="text-sm">Cantidad: <strong>{{ rtrim(rtrim(number_format($p->quantity, 3), '0'), '.') }} {{ $p->unit }}</strong></span>
                         @if ($p->quantity <= $p->min_stock)
                             <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Stock bajo</span>
                         @endif

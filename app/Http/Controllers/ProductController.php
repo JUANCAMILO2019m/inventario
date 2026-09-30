@@ -161,6 +161,7 @@ class ProductController extends Controller
             'sku'         => 'nullable|string|max:255|unique:products,sku,' . ($product?->id ?? 'NULL'),
             'quantity'  => 'required|numeric|min:0|decimal:0,3',
             'min_stock' => 'required|numeric|min:0|decimal:0,3',
+            'unit' => 'required|in:unidad,kg,g,lb,l,ml,bulto,dosis,frasco',
             'price'       => 'nullable|numeric|min:0',
             'location'    => 'nullable|string|max:255',
             'notes'       => 'nullable|string',

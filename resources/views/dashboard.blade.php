@@ -45,7 +45,7 @@
                             <a href="{{ route('products.edit', $p) }}" class="font-medium hover:underline">{{ $p->name }}</a>
                             <p class="text-sm text-gray-500">Mínimo: {{ $p->min_stock }}</p>
                         </div>
-                        <span class="text-red-600 font-semibold">{{ $p->quantity }}</span>
+                        <span class="text-red-600 font-semibold">{{ rtrim(rtrim(number_format($p->quantity, 3), '0'), '.') }} {{ $p->unit }}</span>
                     </div>
                 @empty
                     <p class="px-5 py-6 text-center text-gray-500">Todo el stock está en orden.</p>

@@ -19,6 +19,7 @@
                     <a href="{{ route('products.index') }}" class="hover:underline">Productos</a>
                     <a href="{{ route('categories.index') }}" class="hover:underline">Categorías</a>
                     <a href="{{ route('movements.index') }}" class="hover:underline">Historial</a>
+                    <a href="{{ route('animals.index') }}" class="hover:underline">Control Animal</a>
 
                     @if (auth()->user()->isSuperAdmin())
                         <a href="{{ route('users.index') }}" class="hover:underline">Usuarios</a>

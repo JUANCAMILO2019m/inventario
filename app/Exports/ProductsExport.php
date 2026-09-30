@@ -26,7 +26,7 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
 
     public function headings(): array
     {
-        return ['Nombre', 'Categoría', 'SKU', 'Cantidad', 'Stock mínimo', 'Ubicación', 'Precio', 'Notas'];
+        return ['Nombre', 'Categoría', 'SKU', 'Cantidad', 'Unidad','Stock mínimo', 'Ubicación', 'Precio por unidad', 'Notas'];
     }
 
     public function map($product): array
@@ -36,6 +36,7 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
             $product->category?->name ?? '',
             $product->sku ?? '',
             $product->quantity,
+            $product->unit,
             $product->min_stock,
             $product->location ?? '',
             $product->price ?? '',
@@ -59,7 +60,7 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
         $highestRow = $sheet->getHighestRow();
         for ($row = 2; $row <= $highestRow; $row++) {
             $quantity = $sheet->getCell("D{$row}")->getValue();
-            $minStock = $sheet->getCell("E{$row}")->getValue();
+            $minStock = $sheet->getCell("F{$row}")->getValue();
 
             if ($quantity !== null && $minStock !== null && $quantity <= $minStock) {
                 $sheet->getStyle("A{$row}:H{$row}")->applyFromArray([

@@ -72,9 +72,53 @@
     </div>
 
     <div>
+        <label class="block text-sm font-medium mb-1">Unidad de medida *</label>
+        <select name="unit" id="unit" class="{{ $field }}" required>
+            <option value="unidad" @selected(old('unit', $product->unit ?? 'unidad') === 'unidad')>Unidad</option>
+            <option value="kg" @selected(old('unit', $product->unit ?? '') === 'kg')>Kilogramos (kg)</option>
+            <option value="g" @selected(old('unit', $product->unit ?? '') === 'g')>Gramos (g)</option>
+            <option value="lb" @selected(old('unit', $product->unit ?? '') === 'lb')>Libras (lb)</option>
+            <option value="l" @selected(old('unit', $product->unit ?? '') === 'l')>Litros (l)</option>
+            <option value="ml" @selected(old('unit', $product->unit ?? '') === 'ml')>Mililitros (ml)</option>
+            <option value="bulto" @selected(old('unit', $product->unit ?? '') === 'bulto')>Bulto</option>
+            <option value="dosis" @selected(old('unit', $product->unit ?? '') === 'dosis')>Dosis</option>
+            <option value="frasco" @selected(old('unit', $product->unit ?? '') === 'frasco')>Frasco</option>
+        </select>
+        @error('unit') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+    </div>
+
+    <div>
         <label class="block text-sm font-medium mb-1">Cantidad *</label>
         <input type="number" min="0" step="0.001" name="quantity" value="{{ old('quantity', $product->quantity ?? 0) }}" class="{{ $field }}" required>
+        <p class="text-xs text-gray-500 mt-1">Total disponible, en la unidad elegida arriba.</p>
         @error('quantity') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium mb-1">Precio por unidad</label>
+        <input type="number" step="0.01" min="0" name="price" id="price" value="{{ old('price', $product->price ?? '') }}" class="{{ $field }}">
+        <p class="text-xs text-gray-500 mt-1">Valor de 1 unidad de la medida elegida (1 kg, 1 lb, 1 unidad...).</p>
+        @error('price') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+    </div>
+
+    <div class="md:col-span-2 bg-gray-50 border border-gray-200 rounded p-3">
+        <p class="text-sm font-medium mb-2">¿Compraste por empaque? Calcula el precio por unidad aquí:</p>
+        <div class="flex flex-wrap items-end gap-3">
+            <div>
+                <label class="block text-xs text-gray-600 mb-1">Contenido del empaque</label>
+                <input type="number" step="0.001" min="0" id="pkg-size"
+                    class="rounded border border-gray-300 px-3 py-2 w-32" placeholder="Ej: 40">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-600 mb-1">Precio pagado por el empaque</label>
+                <input type="number" step="0.01" min="0" id="pkg-price"
+                    class="rounded border border-gray-300 px-3 py-2 w-40" placeholder="Ej: 94000">
+            </div>
+            <button type="button" id="pkg-calc"
+                    class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 text-sm">
+                Calcular precio por unidad
+            </button>
+        </div>
     </div>
 
     <div>
@@ -87,12 +131,6 @@
         <label class="block text-sm font-medium mb-1">Ubicación</label>
         <input type="text" name="location" value="{{ old('location', $product->location ?? '') }}" class="{{ $field }}">
         @error('location') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium mb-1">Precio</label>
-        <input type="number" step="0.01" min="0" name="price" value="{{ old('price', $product->price ?? '') }}" class="{{ $field }}">
-        @error('price') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
     <div class="md:col-span-2">
@@ -165,4 +203,18 @@
             errorBox.classList.remove('hidden');
         }
     }
+</script>
+<script>
+    document.getElementById('pkg-calc').addEventListener('click', function () {
+        const size = parseFloat(document.getElementById('pkg-size').value);
+        const price = parseFloat(document.getElementById('pkg-price').value);
+
+        if (!size || size <= 0 || !price || price < 0) {
+            alert('Escribe el contenido del empaque y el precio pagado.');
+            return;
+        }
+
+        const pricePerUnit = price / size;
+        document.getElementById('price').value = pricePerUnit.toFixed(2);
+    });
 </script>
