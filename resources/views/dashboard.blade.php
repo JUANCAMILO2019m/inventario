@@ -80,4 +80,36 @@
             </div>
         </div>
     </div>
+
+    <div class="bg-white shadow rounded mt-6">
+    <div class="px-5 py-3 border-b flex items-center justify-between">
+        <h2 class="font-semibold">Próximos controles y vacunas (30 días)</h2>
+        <span class="text-sm text-gray-500">{{ $activeAnimals }} animales activos</span>
+    </div>
+    
+    <div class="divide-y">
+        @forelse ($upcomingDue as $d)
+            @php $overdue = $d->next_due_date->lt(today()); @endphp
+            <div class="px-5 py-3 flex items-center justify-between">
+                <div>
+                    <a href="{{ route('animals.show', $d->animal) }}" class="font-medium hover:underline">
+                        {{ $d->animal->name }}
+                    </a>
+                    <p class="text-sm text-gray-500">
+                        {{ $d->title ?? match($d->type) {
+                            'vaccine' => 'Vacuna/Desparasitación',
+                            'treatment' => 'Tratamiento',
+                            default => 'Control',
+                        } }}
+                    </p>
+                </div>
+                <span class="text-sm font-semibold {{ $overdue ? 'text-red-600' : 'text-amber-600' }}">
+                    {{ $overdue ? 'Vencido · ' : '' }}{{ $d->next_due_date->format('d/m/Y') }}
+                </span>
+            </div>
+        @empty
+            <p class="px-5 py-6 text-center text-gray-500">No hay controles pendientes en los próximos 30 días.</p>
+        @endforelse
+    </div>
+</div>
 @endsection

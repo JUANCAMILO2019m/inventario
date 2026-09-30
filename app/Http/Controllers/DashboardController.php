@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Models\Animal;
+use App\Models\AnimalRecord;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -29,13 +31,35 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $activeAnimals = Animal::where('status', 'active')->sum('quantity');
+
+        $upcomingDue = AnimalRecord::with('animal')
+            ->whereNotNull('next_due_date')
+            ->where('next_due_date', '<=', now()->addDays(30))
+            ->whereHas('animal', fn ($q) => $q->where('status', 'active'))
+            ->whereNotExists(function ($q) {
+                // Si ya hay un registro posterior del mismo animal, tipo y título,
+                // el control se considera realizado y no se muestra la alerta.
+                $q->select(DB::raw(1))
+                    ->from('animal_records as newer')
+                    ->whereColumn('newer.animal_id', 'animal_records.animal_id')
+                    ->whereColumn('newer.type', 'animal_records.type')
+                    ->whereColumn('newer.title', 'animal_records.title')
+                    ->whereColumn('newer.id', '>', 'animal_records.id');
+            })
+            ->orderBy('next_due_date')
+            ->limit(8)
+            ->get();
+
         return view('dashboard', compact(
             'totalProducts',
             'totalValue',
             'lowStock',
             'lowStockCount',
             'totalCategories',
-            'recentMovements'
+            'recentMovements',
+            'activeAnimals',
+            'upcomingDue'
         ));
     }
 }
