@@ -71,7 +71,7 @@
                 <tr>
                     <td class="px-4 py-3">
                         @if ($p->photo)
-                            <img src="{{ Storage::url($p->photo) }}" alt="{{ $p->name }}" class="w-10 h-10 object-cover rounded">
+                            <img src="{{ $p->photo_url }}" alt="{{ $p->name }}" class="w-10 h-10 object-cover rounded">
                         @else
                             <div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 text-xs">—</div>
                         @endif
@@ -120,7 +120,7 @@
         <div class="bg-white shadow rounded p-4">
             <div class="flex gap-3">
                 @if ($p->photo)
-                    <img src="{{ Storage::url($p->photo) }}" alt="{{ $p->name }}" class="w-14 h-14 object-cover rounded flex-shrink-0">
+                    <img src="{{ $p->photo_url }}" alt="{{ $p->name }}" class="w-14 h-14 object-cover rounded flex-shrink-0">
                 @else
                     <div class="w-14 h-14 bg-gray-100 rounded flex items-center justify-center text-gray-300 text-xs flex-shrink-0">—</div>
                 @endif

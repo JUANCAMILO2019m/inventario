@@ -1,4 +1,23 @@
 @csrf
+<div class="mb-6">
+    <label class="block text-sm font-medium mb-1">Foto</label>
+
+    @if (!empty($animal) && $animal->photo)
+        <div class="flex items-center gap-4 mb-3">
+            <img src="{{ $animal->photo_url }}" alt="{{ $animal->name }}"
+                    class="w-24 h-24 object-cover rounded border">
+            <label class="flex items-center gap-2 text-sm text-red-600">
+                <input type="checkbox" name="remove_photo" value="1">
+                Quitar foto actual
+            </label>
+        </div>
+    @endif
+
+    <input type="file" name="photo" accept="image/*"
+            class="block w-full text-sm border border-gray-300 rounded px-3 py-2">
+    <p class="text-xs text-gray-500 mt-1">JPG, PNG o similar. Máximo 2MB.</p>
+    @error('photo') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+</div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
@@ -13,7 +32,7 @@
     <div>
         <label class="block text-sm font-medium mb-1">Nombre / Identificación *</label>
         <input type="text" name="name" value="{{ old('name', $animal->name ?? '') }}"
-               class="w-full rounded border border-gray-300 px-3 py-2" required>
+                class="w-full rounded border border-gray-300 px-3 py-2" required>
         @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -27,15 +46,15 @@
     <div>
         <label class="block text-sm font-medium mb-1">Especie *</label>
         <input type="text" name="species" value="{{ old('species', $animal->species ?? '') }}"
-               placeholder="Bovino, porcino, aves..."
-               class="w-full rounded border border-gray-300 px-3 py-2" required>
+                placeholder="Bovino, porcino, aves..."
+                class="w-full rounded border border-gray-300 px-3 py-2" required>
         @error('species') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
     <div>
         <label class="block text-sm font-medium mb-1">Raza</label>
         <input type="text" name="breed" value="{{ old('breed', $animal->breed ?? '') }}"
-               class="w-full rounded border border-gray-300 px-3 py-2">
+                class="w-full rounded border border-gray-300 px-3 py-2">
         @error('breed') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -53,15 +72,15 @@
     <div>
         <label class="block text-sm font-medium mb-1">Fecha de nacimiento</label>
         <input type="date" name="birth_date"
-               value="{{ old('birth_date', isset($animal) && $animal->birth_date ? $animal->birth_date->format('Y-m-d') : '') }}"
-               class="w-full rounded border border-gray-300 px-3 py-2">
+                value="{{ old('birth_date', isset($animal) && $animal->birth_date ? $animal->birth_date->format('Y-m-d') : '') }}"
+                class="w-full rounded border border-gray-300 px-3 py-2">
         @error('birth_date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
     <div>
         <label class="block text-sm font-medium mb-1">Cantidad (cabezas) *</label>
         <input type="number" min="1" name="quantity" value="{{ old('quantity', $animal->quantity ?? 1) }}"
-               class="w-full rounded border border-gray-300 px-3 py-2" required>
+                class="w-full rounded border border-gray-300 px-3 py-2" required>
         <p class="text-xs text-gray-500 mt-1">Usa 1 para animales individuales.</p>
         @error('quantity') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
@@ -79,7 +98,7 @@
     <div class="md:col-span-2">
         <label class="block text-sm font-medium mb-1">Descripción</label>
         <textarea name="description" rows="3"
-                  class="w-full rounded border border-gray-300 px-3 py-2">{{ old('description', $animal->description ?? '') }}</textarea>
+                    class="w-full rounded border border-gray-300 px-3 py-2">{{ old('description', $animal->description ?? '') }}</textarea>
         @error('description') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 </div>

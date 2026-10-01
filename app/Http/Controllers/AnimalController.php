@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Services\ImageStorage;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class AnimalController extends Controller
@@ -34,7 +36,14 @@ class AnimalController extends Controller
 
     public function store(Request $request)
     {
-        Animal::create($this->validated($request));
+        $data = $this->validated($request);
+        unset($data['photo'], $data['remove_photo']);
+
+        if ($request->hasFile('photo')) {
+            $data['photo'] = ImageStorage::store($request->file('photo'), 'animals');
+        }
+
+        Animal::create($data);
 
         return redirect()->route('animals.index')->with('success', 'Animal registrado');
     }
@@ -59,13 +68,27 @@ class AnimalController extends Controller
 
     public function update(Request $request, Animal $animal)
     {
-        $animal->update($this->validated($request));
+        $data = $this->validated($request);
+        unset($data['photo'], $data['remove_photo']);
+
+        if ($request->hasFile('photo')) {
+            $newPhoto = ImageStorage::store($request->file('photo'), 'animals');
+            ImageStorage::delete($animal->photo);
+            $data['photo'] = $newPhoto;
+        } elseif ($request->boolean('remove_photo') && $animal->photo) {
+            ImageStorage::delete($animal->photo);
+            $data['photo'] = null;
+        }
+
+        $animal->update($data);
 
         return redirect()->route('animals.show', $animal)->with('success', 'Animal actualizado');
     }
 
     public function destroy(Animal $animal)
     {
+        ImageStorage::delete($animal->photo);
+
         $animal->delete();
 
         return redirect()->route('animals.index')->with('success', 'Animal eliminado');
@@ -84,6 +107,8 @@ class AnimalController extends Controller
             'quantity'    => 'required|integer|min:1',
             'status'      => 'required|in:active,sold,dead',
             'description' => 'nullable|string',
+            'photo'        => 'nullable|image|max:2048',
+            'remove_photo' => 'nullable|boolean',
         ]);
     }
 

@@ -9,7 +9,7 @@
 
     @if (!empty($product) && $product->photo)
         <div class="flex items-center gap-4 mb-3">
-            <img src="{{ Storage::url($product->photo) }}" alt="{{ $product->name }}"
+            <img src="{{ $product->photo_url }}" alt="{{ $product->name }}"
                 class="w-24 h-24 object-cover rounded border">
             <label class="flex items-center gap-2 text-sm text-red-600">
                 <input type="checkbox" name="remove_photo" value="1">

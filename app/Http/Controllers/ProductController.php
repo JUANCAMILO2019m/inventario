@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Exports\ProductsExport;
+use App\Services\ImageStorage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     public function index(Request $request)
-    {
+    {   
         $products = Product::with('category')
             ->when($request->filled('q'), function ($query) use ($request) {
                 $term = '%' . $request->q . '%';
@@ -83,10 +84,10 @@ class ProductController extends Controller
         $data = $this->validated($request);
         $initial = (float) $data['quantity'];
         $data['quantity'] = 0;
-        unset($data['remove_photo']);
+        unset($data['remove_photo'], $data['photo']);
 
         if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('products', 'public');
+            $data['photo'] = ImageStorage::store($request->file('photo'), 'products');
         }
 
         $product = Product::create($data);
@@ -117,19 +118,16 @@ class ProductController extends Controller
     {
         $data = $this->validated($request, $product);
         $newQuantity = (float) $data['quantity'];
-        unset($data['quantity']);
-
-        if ($request->boolean('remove_photo') && $product->photo) {
-            Storage::disk('public')->delete($product->photo);
-            $data['photo'] = null;
-        }
-        unset($data['remove_photo']);
+        unset($data['quantity'], $data['remove_photo'], $data['photo']);
 
         if ($request->hasFile('photo')) {
-            if ($product->photo) {
-                Storage::disk('public')->delete($product->photo);
-            }
-            $data['photo'] = $request->file('photo')->store('products', 'public');
+            // Se sube primero la nueva: si falla, no se pierde la anterior
+            $newPhoto = ImageStorage::store($request->file('photo'), 'products');
+            ImageStorage::delete($product->photo);
+            $data['photo'] = $newPhoto;
+        } elseif ($request->boolean('remove_photo') && $product->photo) {
+            ImageStorage::delete($product->photo);
+            $data['photo'] = null;
         }
 
         $product->update($data);
@@ -144,9 +142,8 @@ class ProductController extends Controller
     
     public function destroy(Product $product)
     {
-        if ($product->photo) {
-            Storage::disk('public')->delete($product->photo);
-        }
+        ImageStorage::delete($product->photo);
+
         $product->delete();
 
         return redirect()->route('products.index')

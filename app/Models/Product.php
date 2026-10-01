@@ -3,9 +3,12 @@
 namespace App\Models;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasPhoto;
 
 class Product extends Model
 {
+    use HasPhoto;
+    
     protected $fillable = [
             'category_id', 'name', 'sku', 'quantity',
             'min_stock', 'unit','location', 'price', 'notes', 'photo',

@@ -3,19 +3,19 @@
 @section('title', $animal->name)
 
 @section('content')
-    <div class="flex items-start justify-between mb-4">
+    <div class="flex items-center gap-4">
+        @if ($animal->photo)
+            <img src="{{ $animal->photo_url }}" alt="{{ $animal->name }}"
+                class="w-20 h-20 object-cover rounded border">
+        @else
+            <div class="w-20 h-20 bg-gray-100 rounded border flex items-center justify-center text-3xl">🐾</div>
+        @endif
         <div>
             <h1 class="text-2xl font-bold">{{ $animal->name }}</h1>
             <p class="text-gray-500">
                 {{ $animal->species }}{{ $animal->breed ? ' · ' . $animal->breed : '' }}
                 · {{ $animal->type === 'lot' ? 'Lote de ' . $animal->quantity : 'Individual' }}
             </p>
-        </div>
-        <div class="flex items-center gap-3">
-            @can('modify-inventory')
-                <a href="{{ route('animals.edit', $animal) }}" class="text-blue-600 hover:underline">Editar</a>
-            @endcan
-            <a href="{{ route('animals.index') }}" class="text-gray-600 hover:underline">← Volver</a>
         </div>
     </div>
 

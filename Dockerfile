@@ -42,3 +42,7 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev
 RUN mkdir -p public/storage/products \
     && chown -R application:application /app \
     && chmod -R 775 storage bootstrap/cache public/storage
+
+RUN mkdir -p public/storage/products public/storage/animals \
+    && chown -R application:application /app \
+    && chmod -R 775 storage bootstrap/cache public/storage
