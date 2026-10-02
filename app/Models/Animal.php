@@ -34,4 +34,20 @@ class Animal extends Model
             ->orderByDesc('id')
             ->first();
     }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (blank($this->photo)) {
+            return null;
+        }
+
+        // Si es una URL de Cloudinary, devolverla directamente.
+        if (str_starts_with($this->photo, 'http://') ||
+            str_starts_with($this->photo, 'https://')) {
+            return $this->photo;
+        }
+
+        // Si es una imagen antigua almacenada localmente.
+        return Storage::disk('public')->url($this->photo);
+    }
 }
