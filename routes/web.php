@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('products', ProductController::class)->only(['index']);
     Route::resource('categories', CategoryController::class)->only(['index']);
     Route::resource('products.movements', StockMovementController::class)->only(['index']);
+    Route::get('/animals/export', [AnimalController::class, 'export'])->name('animals.export');
     Route::resource('animals', AnimalController::class)->only(['index', 'show']);
     Route::get('/movements/export', [MovementController::class, 'export'])->name('movements.export');
     Route::get('/movements', [MovementController::class, 'index'])->name('movements.index');

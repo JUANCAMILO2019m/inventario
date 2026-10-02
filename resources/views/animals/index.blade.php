@@ -7,19 +7,19 @@
         <h1 class="text-2xl font-bold">Animales</h1>
         @can('modify-inventory')
             <a href="{{ route('animals.create') }}"
-               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                 + Nuevo animal
             </a>
         @endcan
     </div>
 
     <form method="GET" action="{{ route('animals.index') }}"
-          class="bg-white shadow rounded p-4 mb-4 flex flex-wrap items-end gap-3">
+            class="bg-white shadow rounded p-4 mb-4 flex flex-wrap items-end gap-3">
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium mb-1">Buscar</label>
             <input type="text" name="q" value="{{ request('q') }}"
-                   placeholder="Nombre, código o especie"
-                   class="w-full rounded border border-gray-300 px-3 py-2">
+                    placeholder="Nombre, código o especie"
+                    class="w-full rounded border border-gray-300 px-3 py-2">
         </div>
 
         <div>
@@ -45,9 +45,13 @@
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Filtrar</button>
             @if (request()->hasAny(['q', 'type', 'status']))
                 <a href="{{ route('animals.index') }}"
-                   class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-50">Limpiar</a>
+                    class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-50">Limpiar</a>
             @endif
         </div>
+        <a href="{{ route('animals.export', request()->query()) }}"
+        class="px-4 py-2 rounded border border-green-600 text-green-700 hover:bg-green-50">
+            Exportar Excel
+        </a>
     </form>
 
     {{-- Vista de tabla --}}
@@ -96,7 +100,7 @@
                             @can('modify-inventory')
                                 <a href="{{ route('animals.edit', $a) }}" class="text-blue-600 hover:underline">Editar</a>
                                 <form action="{{ route('animals.destroy', $a) }}" method="POST" class="inline"
-                                      onsubmit="return confirm('¿Eliminar {{ $a->name }}?')">
+                                        onsubmit="return confirm('¿Eliminar {{ $a->name }}?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="text-red-600 hover:underline ml-3">Eliminar</button>
@@ -146,7 +150,7 @@
                     @can('modify-inventory')
                         <a href="{{ route('animals.edit', $a) }}" class="text-blue-600 hover:underline">Editar</a>
                         <form action="{{ route('animals.destroy', $a) }}" method="POST"
-                              onsubmit="return confirm('¿Eliminar {{ $a->name }}?')">
+                                onsubmit="return confirm('¿Eliminar {{ $a->name }}?')">
                             @csrf
                             @method('DELETE')
                             <button class="text-red-600 hover:underline">Eliminar</button>

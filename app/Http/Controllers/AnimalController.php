@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Services\ImageStorage;
+use App\Exports\AnimalsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
@@ -11,22 +13,40 @@ class AnimalController extends Controller
 {
     public function index(Request $request)
     {
-        $animals = Animal::query()
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $term = '%' . $request->q . '%';
-                $query->where(function ($q) use ($term) {
-                    $q->where('name', 'like', $term)
-                        ->orWhere('code', 'like', $term)
-                        ->orWhere('species', 'like', $term);
-                });
-            })
-            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
+        $animals = $this->filteredQuery($request)
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
 
         return view('animals.index', compact('animals'));
+    }
+
+    public function export(Request $request)
+    {
+        $animals = $this->filteredQuery($request)
+            ->with('records.product')
+            ->orderBy('name')
+            ->get();
+
+        return Excel::download(
+            new AnimalsExport($animals),
+            'animales_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    private function filteredQuery(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        return Animal::query()
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = '%' . $request->q . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->where('name', 'like', $term)
+                    ->orWhere('code', 'like', $term)
+                    ->orWhere('species', 'like', $term);
+                });
+            })
+            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status));
     }
 
     public function create()
