@@ -34,10 +34,10 @@ class AnimalsListSheet implements FromCollection, WithHeadings, WithMapping, Wit
     {
         return [
             'Nombre', 'Código', 'Tipo', 'Especie', 'Raza', 'Sexo',
-            'Nacimiento', 'Cantidad', 'Estado', 'Último peso (kg)', 'Descripción',
+            'Nacimiento', 'Ingreso', 'Proveedor', 'Costo de compra', 'Peso inicial (kg)',
+            'Cantidad actual', 'Estado', 'Último peso (kg)', 'Descripción',
         ];
     }
-
     public function map($animal): array
     {
         $lastWeight = $animal->records
@@ -58,6 +58,10 @@ class AnimalsListSheet implements FromCollection, WithHeadings, WithMapping, Wit
                 default => '',
             },
             $animal->birth_date?->format('d/m/Y') ?? '',
+            $animal->entry_date?->format('d/m/Y') ?? '',
+            $animal->supplier ?? '',
+            $animal->purchase_cost,
+            $animal->initial_weight,
             $animal->quantity,
             match ($animal->status) {
                 'active' => 'Activo',
@@ -104,8 +108,8 @@ class AnimalsListSheet implements FromCollection, WithHeadings, WithMapping, Wit
     public function columnWidths(): array
     {
         return [
-            'A' => 26, 'B' => 14, 'C' => 12, 'D' => 16, 'E' => 16, 'F' => 10,
-            'G' => 13, 'H' => 10, 'I' => 10, 'J' => 16, 'K' => 40,
+            'A' => 26, 'B' => 14, 'C' => 12, 'D' => 16, 'E' => 16, 'F' => 10, 'G' => 13, 'H' => 13,
+            'I' => 22, 'J' => 16, 'K' => 16, 'L' => 14, 'M' => 10, 'N' => 16, 'O' => 40,
         ];
     }
 }

@@ -2,18 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPhoto;
 use Illuminate\Database\Eloquent\Model;
 
 class Animal extends Model
 {
+    use HasPhoto;
+
     protected $fillable = [
         'type', 'name', 'code', 'species', 'breed', 'sex',
         'birth_date', 'quantity', 'status', 'photo', 'description',
+        'supplier', 'purchase_cost', 'entry_date', 'initial_weight', 'initial_quantity',
     ];
 
     protected function casts(): array
     {
-        return ['birth_date' => 'date'];
+        return [
+            'birth_date'     => 'date',
+            'entry_date'     => 'date',
+            'purchase_cost'  => 'float',
+            'initial_weight' => 'float',
+        ];
     }
 
     public function records()
@@ -35,19 +44,64 @@ class Animal extends Model
             ->first();
     }
 
-    public function getPhotoUrlAttribute(): ?string
+    public function hasHeadMovements(): bool
     {
-        if (blank($this->photo)) {
-            return null;
+        return $this->records()->whereIn('type', ['entry', 'mortality', 'sale'])->exists();
+    }
+
+    /**
+     * Suma o resta cabezas según el tipo de movimiento.
+     * 'entry' suma; 'mortality' y 'sale' restan. Con $reverse se deshace el movimiento.
+     */
+    public function adjustHeads(string $type, int $heads, bool $reverse = false): void
+    {
+        $sign = $type === 'entry' ? 1 : -1;
+
+        if ($reverse) {
+            $sign = -$sign;
         }
 
-        // Si es una URL de Cloudinary, devolverla directamente.
-        if (str_starts_with($this->photo, 'http://') ||
-            str_starts_with($this->photo, 'https://')) {
-            return $this->photo;
+        $current = (int) $this->quantity;
+        $new = $current + ($sign * $heads);
+
+        if ($new < 0) {
+            throw new \InvalidArgumentException('Las cabezas resultantes no pueden ser negativas.');
         }
 
-        // Si es una imagen antigua almacenada localmente.
-        return Storage::disk('public')->url($this->photo);
+        $attributes = ['quantity' => $new];
+
+        if ($new === 0 && !$reverse) {
+            $attributes['status'] = $type === 'sale' ? 'sold' : 'dead';
+        } elseif ($new > 0 && $current === 0) {
+            $attributes['status'] = 'active';
+        }
+
+        $this->update($attributes);
+    }
+
+    public function lotStats(): array
+    {
+        $sum = fn (string $type, string $column) => (float) $this->records()->where('type', $type)->sum($column);
+
+        $entered = (int) $this->initial_quantity + (int) $sum('entry', 'heads');
+        $deaths = (int) $sum('mortality', 'heads');
+        $sold = (int) $sum('sale', 'heads');
+        $invested = (float) $this->purchase_cost + $sum('entry', 'amount');
+        $lastWeight = $this->lastWeight()?->weight;
+        $lastWeight = $lastWeight !== null ? (float) $lastWeight : null;
+
+        return [
+            'entered'       => $entered,
+            'deaths'        => $deaths,
+            'sold'          => $sold,
+            'mortality_pct' => $entered > 0 ? round($deaths / $entered * 100, 1) : 0,
+            'invested'      => $invested,
+            'cost_per_head' => ($entered > 0 && $invested > 0) ? $invested / $entered : null,
+            'revenue'       => $sum('sale', 'amount'),
+            'last_weight'   => $lastWeight,
+            'weight_gain'   => ($this->initial_weight !== null && $lastWeight !== null)
+                ? round($lastWeight - $this->initial_weight, 2)
+                : null,
+        ];
     }
 }

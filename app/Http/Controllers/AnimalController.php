@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Animal;
-use App\Services\ImageStorage;
 use App\Exports\AnimalsExport;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Animal;
+use App\Models\Product;
+use App\Services\ImageStorage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AnimalController extends Controller
 {
@@ -34,21 +36,6 @@ class AnimalController extends Controller
         );
     }
 
-    private function filteredQuery(Request $request): \Illuminate\Database\Eloquent\Builder
-    {
-        return Animal::query()
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $term = '%' . $request->q . '%';
-                $query->where(function ($q) use ($term) {
-                    $q->where('name', 'like', $term)
-                    ->orWhere('code', 'like', $term)
-                    ->orWhere('species', 'like', $term);
-                });
-            })
-            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status));
-    }
-
     public function create()
     {
         return view('animals.create');
@@ -58,6 +45,12 @@ class AnimalController extends Controller
     {
         $data = $this->validated($request);
         unset($data['photo'], $data['remove_photo']);
+
+        if ($data['type'] === 'individual') {
+            $data['quantity'] = 1;
+        } else {
+            $data['initial_quantity'] = $data['quantity'];
+        }
 
         if ($request->hasFile('photo')) {
             $data['photo'] = ImageStorage::store($request->file('photo'), 'animals');
@@ -76,9 +69,10 @@ class AnimalController extends Controller
             ->orderByDesc('id')
             ->paginate(15);
 
-        $products = \App\Models\Product::orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+        $stats = $animal->isLot() ? $animal->lotStats() : null;
 
-        return view('animals.show', compact('animal', 'records', 'products'));
+        return view('animals.show', compact('animal', 'records', 'products', 'stats'));
     }
 
     public function edit(Animal $animal)
@@ -88,8 +82,18 @@ class AnimalController extends Controller
 
     public function update(Request $request, Animal $animal)
     {
-        $data = $this->validated($request);
+        $data = $this->validated($request, $animal);
         unset($data['photo'], $data['remove_photo']);
+
+        if ($animal->isLot()) {
+            // Mientras no haya movimientos, la cantidad se puede corregir.
+            // Con movimientos, solo cambia registrándolos desde la ficha.
+            if (!$animal->hasHeadMovements() && isset($data['quantity'])) {
+                $data['initial_quantity'] = $data['quantity'];
+            } else {
+                unset($data['quantity']);
+            }
+        }
 
         if ($request->hasFile('photo')) {
             $newPhoto = ImageStorage::store($request->file('photo'), 'animals');
@@ -114,26 +118,50 @@ class AnimalController extends Controller
         return redirect()->route('animals.index')->with('success', 'Animal eliminado');
     }
 
-    private function validated(Request $request): array
+    private function filteredQuery(Request $request): Builder
     {
-        return $request->validate([
-            'type'        => 'required|in:individual,lot',
-            'name'        => 'required|string|max:255',
-            'code'        => 'nullable|string|max:255|unique:animals,code,' . ($this->currentAnimalId($request) ?? 'NULL'),
-            'species'     => 'required|string|max:255',
-            'breed'       => 'nullable|string|max:255',
-            'sex'         => 'nullable|in:male,female,mixed',
-            'birth_date'  => 'nullable|date',
-            'quantity'    => 'required|integer|min:1',
-            'status'      => 'required|in:active,sold,dead',
-            'description' => 'nullable|string',
-            'photo'        => 'nullable|image|max:2048',
-            'remove_photo' => 'nullable|boolean',
-        ]);
+        return Animal::query()
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = '%' . $request->q . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->where('name', 'like', $term)
+                      ->orWhere('code', 'like', $term)
+                      ->orWhere('species', 'like', $term);
+                });
+            })
+            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status));
     }
 
-    private function currentAnimalId(Request $request): ?int
+    private function validated(Request $request, ?Animal $animal = null): array
     {
-        return $request->route('animal')?->id;
+        $type = $animal?->type ?? $request->input('type');
+
+        $rules = [
+            'name'         => 'required|string|max:255',
+            'code'         => ['nullable', 'string', 'max:255', Rule::unique('animals', 'code')->ignore($animal?->id)],
+            'species'      => 'required|string|max:255',
+            'breed'        => 'nullable|string|max:255',
+            'sex'          => 'nullable|in:male,female,mixed',
+            'birth_date'   => 'nullable|date',
+            'status'       => 'required|in:active,sold,dead',
+            'description'  => 'nullable|string',
+            'photo'        => 'nullable|image|max:2048',
+            'remove_photo' => 'nullable|boolean',
+        ];
+
+        if (!$animal) {
+            $rules['type'] = 'required|in:individual,lot';
+        }
+
+        if ($type === 'lot') {
+            $rules['quantity'] = $animal ? 'nullable|integer|min:1' : 'required|integer|min:1';
+            $rules['supplier'] = 'nullable|string|max:255';
+            $rules['purchase_cost'] = 'nullable|numeric|min:0|decimal:0,2';
+            $rules['entry_date'] = 'nullable|date';
+            $rules['initial_weight'] = 'nullable|numeric|min:0|decimal:0,2';
+        }
+
+        return $request->validate($rules);
     }
 }

@@ -38,7 +38,7 @@ class AnimalRecordsSheet implements FromCollection, WithHeadings, WithMapping, W
     public function headings(): array
     {
         return [
-            'Animal', 'Código', 'Fecha', 'Tipo', 'Detalle', 'Peso (kg)',
+            'Animal', 'Código', 'Fecha', 'Tipo', 'Detalle', 'Peso (kg)', 'Cabezas', 'Valor',
             'Insumo', 'Cantidad usada', 'Unidad', 'Próximo control', 'Notas',
         ];
     }
@@ -48,6 +48,12 @@ class AnimalRecordsSheet implements FromCollection, WithHeadings, WithMapping, W
         $animal = $row['animal'];
         $r = $row['record'];
 
+        $heads = match ($r->type) {
+            'entry' => $r->heads,
+            'mortality', 'sale' => $r->heads !== null ? -$r->heads : null,
+            default => null,
+        };
+
         return [
             $animal->name,
             $animal->code ?? '',
@@ -56,10 +62,15 @@ class AnimalRecordsSheet implements FromCollection, WithHeadings, WithMapping, W
                 'feeding' => 'Alimentación',
                 'vaccine' => 'Vacuna/Desparasitación',
                 'weight' => 'Pesaje',
+                'mortality' => 'Baja (mortalidad)',
+                'sale' => 'Venta parcial',
+                'entry' => 'Ingreso de animales',
                 default => 'Tratamiento',
             },
             $r->title ?? '',
             $r->weight !== null ? (float) $r->weight : null,
+            $heads,
+            $r->amount,
             $r->product?->name ?? '',
             $r->product_quantity,
             $r->product?->unit ?? '',
@@ -89,8 +100,8 @@ class AnimalRecordsSheet implements FromCollection, WithHeadings, WithMapping, W
     public function columnWidths(): array
     {
         return [
-            'A' => 26, 'B' => 14, 'C' => 12, 'D' => 24, 'E' => 26, 'F' => 11,
-            'G' => 26, 'H' => 14, 'I' => 10, 'J' => 16, 'K' => 40,
+            'A' => 26, 'B' => 14, 'C' => 12, 'D' => 24, 'E' => 26, 'F' => 11, 'G' => 10,
+            'H' => 14, 'I' => 26, 'J' => 14, 'K' => 10, 'L' => 16, 'M' => 40,
         ];
     }
 }

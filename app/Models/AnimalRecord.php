@@ -8,16 +8,19 @@ class AnimalRecord extends Model
 {
     protected $fillable = [
         'animal_id', 'type', 'recorded_at', 'title', 'product_id',
-        'product_quantity', 'stock_movement_id', 'weight',
+        'product_quantity', 'stock_movement_id', 'weight', 'heads', 'amount',
         'next_due_date', 'notes',
     ];
 
     protected function casts(): array
     {
         return [
-            'recorded_at'   => 'date',
-            'next_due_date' => 'date',
-            'weight'        => 'decimal:2',
+            'recorded_at'      => 'date',
+            'next_due_date'    => 'date',
+            'weight'           => 'decimal:2',
+            'product_quantity' => 'float',
+            'heads'            => 'integer',
+            'amount'           => 'float',
         ];
     }
 
