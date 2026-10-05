@@ -50,6 +50,13 @@ class DashboardController extends Controller
             ->orderBy('next_due_date')
             ->limit(8)
             ->get();
+        $receivables = AnimalRecord::with('animal')
+            ->where('type', 'sale')
+            ->whereIn('payment_status', ['pending', 'partial'])
+            ->orderBy('recorded_at')
+            ->get();
+
+        $receivableTotal = $receivables->sum(fn ($r) => (float) $r->amount - (float) $r->amount_paid);
 
         return view('dashboard', compact(
             'totalProducts',
@@ -59,7 +66,9 @@ class DashboardController extends Controller
             'totalCategories',
             'recentMovements',
             'activeAnimals',
-            'upcomingDue'
+            'upcomingDue',
+            'receivables',
+            'receivableTotal'
         ));
     }
 }

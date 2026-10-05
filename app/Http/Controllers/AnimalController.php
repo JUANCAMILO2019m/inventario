@@ -70,7 +70,7 @@ class AnimalController extends Controller
             ->paginate(15);
 
         $products = Product::orderBy('name')->get();
-        $stats = $animal->isLot() ? $animal->lotStats() : null;
+        $stats = $animal->stats();
 
         return view('animals.show', compact('animal', 'records', 'products', 'stats'));
     }
@@ -138,16 +138,20 @@ class AnimalController extends Controller
         $type = $animal?->type ?? $request->input('type');
 
         $rules = [
-            'name'         => 'required|string|max:255',
-            'code'         => ['nullable', 'string', 'max:255', Rule::unique('animals', 'code')->ignore($animal?->id)],
-            'species'      => 'required|string|max:255',
-            'breed'        => 'nullable|string|max:255',
-            'sex'          => 'nullable|in:male,female,mixed',
-            'birth_date'   => 'nullable|date',
-            'status'       => 'required|in:active,sold,dead',
-            'description'  => 'nullable|string',
-            'photo'        => 'nullable|image|max:2048',
-            'remove_photo' => 'nullable|boolean',
+            'name'           => 'required|string|max:255',
+            'code'           => ['nullable', 'string', 'max:255', Rule::unique('animals', 'code')->ignore($animal?->id)],
+            'species'        => 'required|string|max:255',
+            'breed'          => 'nullable|string|max:255',
+            'sex'            => 'nullable|in:male,female,mixed',
+            'birth_date'     => 'nullable|date',
+            'status'         => 'required|in:active,sold,dead',
+            'description'    => 'nullable|string',
+            'photo'          => 'nullable|image|max:2048',
+            'remove_photo'   => 'nullable|boolean',
+            'supplier'       => 'nullable|string|max:255',
+            'purchase_cost'  => 'nullable|numeric|min:0|decimal:0,2',
+            'entry_date'     => 'nullable|date',
+            'initial_weight' => 'nullable|numeric|min:0|decimal:0,2',
         ];
 
         if (!$animal) {
@@ -156,10 +160,6 @@ class AnimalController extends Controller
 
         if ($type === 'lot') {
             $rules['quantity'] = $animal ? 'nullable|integer|min:1' : 'required|integer|min:1';
-            $rules['supplier'] = 'nullable|string|max:255';
-            $rules['purchase_cost'] = 'nullable|numeric|min:0|decimal:0,2';
-            $rules['entry_date'] = 'nullable|date';
-            $rules['initial_weight'] = 'nullable|numeric|min:0|decimal:0,2';
         }
 
         return $request->validate($rules);

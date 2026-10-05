@@ -16,6 +16,7 @@ class AnimalsExport implements Export, WithMultipleSheets
     {
         return [
             new AnimalsListSheet($this->animals),
+            new AnimalsSummarySheet($this->animals),
             new AnimalRecordsSheet($this->animals),
         ];
     }

@@ -13,7 +13,7 @@
     @if ($isEdit && $animal->photo)
         <div class="flex items-center gap-4 mb-3">
             <img src="{{ $animal->photo_url }}" alt="{{ $animal->name }}"
-                 class="w-24 h-24 object-cover rounded border">
+                    class="w-24 h-24 object-cover rounded border">
             <label class="flex items-center gap-2 text-sm text-red-600">
                 <input type="checkbox" name="remove_photo" value="1">
                 Quitar foto actual
@@ -22,7 +22,7 @@
     @endif
 
     <input type="file" name="photo" accept="image/*"
-           class="block w-full text-sm border border-gray-300 rounded px-3 py-2">
+            class="block w-full text-sm border border-gray-300 rounded px-3 py-2">
     <p class="text-xs text-gray-500 mt-1">JPG, PNG o similar. Máximo 2MB.</p>
     @error('photo') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
 </div>
@@ -43,7 +43,7 @@
     <div>
         <label class="block text-sm font-medium mb-1"><span id="name-label">Nombre / Identificación</span> *</label>
         <input type="text" name="name" value="{{ old('name', $animal->name ?? '') }}"
-               class="{{ $input }}" required>
+                class="{{ $input }}" required>
         @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -56,7 +56,7 @@
     <div>
         <label class="block text-sm font-medium mb-1">Especie *</label>
         <input type="text" name="species" value="{{ old('species', $animal->species ?? '') }}"
-               placeholder="Bovino, porcino, aves..." class="{{ $input }}" required>
+                placeholder="Bovino, porcino, aves..." class="{{ $input }}" required>
         @error('species') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -81,8 +81,8 @@
     <div data-for="individual">
         <label class="block text-sm font-medium mb-1">Fecha de nacimiento</label>
         <input type="date" name="birth_date"
-               value="{{ old('birth_date', $isEdit && $animal->birth_date ? $animal->birth_date->format('Y-m-d') : '') }}"
-               class="{{ $input }}">
+                value="{{ old('birth_date', $isEdit && $animal->birth_date ? $animal->birth_date->format('Y-m-d') : '') }}"
+                class="{{ $input }}">
         @error('birth_date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -92,41 +92,41 @@
             {{ $quantityLocked ? 'Cabezas actuales' : 'Cantidad inicial (cabezas) *' }}
         </label>
         <input type="number" min="1" name="quantity"
-               value="{{ old('quantity', $animal->quantity ?? 1) }}"
-               class="{{ $input }} {{ $quantityLocked ? 'bg-gray-100' : '' }}"
-               {!! $quantityLocked ? 'disabled data-locked="1"' : 'required' !!}>
+                value="{{ old('quantity', $animal->quantity ?? 1) }}"
+                class="{{ $input }} {{ $quantityLocked ? 'bg-gray-100' : '' }}"
+                {!! $quantityLocked ? 'disabled data-locked="1"' : 'required' !!}>
         @if ($quantityLocked)
             <p class="text-xs text-gray-500 mt-1">Cambia con bajas, ventas e ingresos, desde la ficha del lote.</p>
         @endif
         @error('quantity') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
-    <div data-for="lot">
+    <div>
         <label class="block text-sm font-medium mb-1">Fecha de ingreso</label>
         <input type="date" name="entry_date"
-               value="{{ old('entry_date', $isEdit && $animal->entry_date ? $animal->entry_date->format('Y-m-d') : '') }}"
-               class="{{ $input }}">
+                value="{{ old('entry_date', $isEdit && $animal->entry_date ? $animal->entry_date->format('Y-m-d') : '') }}"
+                class="{{ $input }}">
         @error('entry_date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
-    <div data-for="lot">
+    <div>
         <label class="block text-sm font-medium mb-1">Peso promedio inicial por cabeza (kg)</label>
         <input type="number" step="0.01" min="0" name="initial_weight"
-               value="{{ old('initial_weight', $animal->initial_weight ?? '') }}" class="{{ $input }}">
+                value="{{ old('initial_weight', $animal->initial_weight ?? '') }}" class="{{ $input }}">
         @error('initial_weight') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
-    <div data-for="lot">
+    <div>
         <label class="block text-sm font-medium mb-1">Origen / Proveedor</label>
         <input type="text" name="supplier" value="{{ old('supplier', $animal->supplier ?? '') }}"
-               class="{{ $input }}">
+                class="{{ $input }}">
         @error('supplier') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
-    <div data-for="lot">
+    <div>
         <label class="block text-sm font-medium mb-1">Costo total de compra</label>
         <input type="number" step="0.01" min="0" name="purchase_cost"
-               value="{{ old('purchase_cost', $animal->purchase_cost ?? '') }}" class="{{ $input }}">
+                value="{{ old('purchase_cost', $animal->purchase_cost ?? '') }}" class="{{ $input }}">
         @error('purchase_cost') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 

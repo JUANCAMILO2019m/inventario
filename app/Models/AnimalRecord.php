@@ -8,8 +8,9 @@ class AnimalRecord extends Model
 {
     protected $fillable = [
         'animal_id', 'type', 'recorded_at', 'title', 'product_id',
-        'product_quantity', 'stock_movement_id', 'weight', 'heads', 'amount',
-        'next_due_date', 'notes',
+        'product_quantity', 'stock_movement_id', 'weight', 'weight_type',
+        'heads', 'amount', 'total_weight', 'price_mode', 'unit_price',
+        'payment_status', 'amount_paid', 'unit_cost', 'next_due_date', 'notes',
     ];
 
     protected function casts(): array
@@ -21,6 +22,10 @@ class AnimalRecord extends Model
             'product_quantity' => 'float',
             'heads'            => 'integer',
             'amount'           => 'float',
+            'total_weight'     => 'float',
+            'unit_price'       => 'float',
+            'amount_paid'      => 'float',
+            'unit_cost'        => 'float',
         ];
     }
 

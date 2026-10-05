@@ -112,4 +112,33 @@
         @endforelse
     </div>
 </div>
+<div class="bg-white shadow rounded mt-6">
+    <div class="px-5 py-3 border-b flex items-center justify-between">
+        <h2 class="font-semibold">Ventas por cobrar</h2>
+        <span class="text-sm font-semibold {{ $receivableTotal > 0 ? 'text-red-600' : 'text-gray-500' }}">
+            Total: ${{ number_format($receivableTotal, 2) }}
+        </span>
+    </div>
+    <div class="divide-y">
+        @forelse ($receivables->take(8) as $r)
+            @php
+                $balance = (float) $r->amount - (float) $r->amount_paid;
+                $days = (int) abs($r->recorded_at->diffInDays(today()));
+            @endphp
+            <div class="px-5 py-3 flex items-center justify-between">
+                <div>
+                    <a href="{{ route('animals.show', $r->animal) }}" class="font-medium hover:underline">
+                        {{ $r->animal->name }}
+                    </a>
+                    <p class="text-sm text-gray-500">
+                        {{ $r->title ?: 'Sin comprador' }} · hace {{ $days }} {{ $days === 1 ? 'día' : 'días' }}
+                    </p>
+                </div>
+                <span class="text-sm font-semibold text-red-600">${{ number_format($balance, 2) }}</span>
+            </div>
+        @empty
+            <p class="px-5 py-6 text-center text-gray-500">No hay ventas pendientes de cobro.</p>
+        @endforelse
+    </div>
+</div>
 @endsection
