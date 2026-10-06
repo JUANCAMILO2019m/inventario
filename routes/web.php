@@ -9,6 +9,7 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\AnimalRecordController;
+use App\Http\Controllers\AnimalFaenaController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -23,6 +24,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/animals/{animal}/records', [AnimalRecordController::class, 'store'])->name('animals.records.store');
         Route::delete('/animals/{animal}/records/{record}', [AnimalRecordController::class, 'destroy'])->name('animals.records.destroy');
         Route::post('/animals/{animal}/records/{record}/payment', [AnimalRecordController::class, 'addPayment'])->name('animals.records.payment');
+        Route::post('/animals/{animal}/faenas', [AnimalFaenaController::class, 'store'])->name('animals.faenas.store');
+        Route::delete('/animals/{animal}/faenas/{batch}', [AnimalFaenaController::class, 'destroy'])->name('animals.faenas.destroy');
     });
 
     // Lectura: disponible para los tres roles (superadmin, admin, personal)

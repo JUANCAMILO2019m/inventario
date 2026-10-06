@@ -20,6 +20,7 @@
             'mortality' => 'Baja (mortalidad)',
             'sale'      => 'Venta',
             'entry'     => 'Ingreso de animales',
+            'consumption' => 'Consumo propio',
         ];
 
         $weightTypeLabel = fn ($t) => match ($t) {
@@ -55,7 +56,12 @@
                     if ($r->amount !== null) {
                         $parts[] = 'Total $' . number_format($r->amount, 2);
                     }
+                    if ($r->batch_id) {
+                        $parts[] = 'Faena';
+                    }
                     return implode(' · ', $parts);
+                case 'consumption':
+                return '−' . $r->heads . ' cabezas · sin venta';
                 default:
                     return $r->title ?? '—';
             }
@@ -110,6 +116,9 @@
             <div class="bg-white shadow rounded p-4">
                 <p class="text-sm text-gray-500">Vendidas</p>
                 <p class="text-2xl font-bold">{{ $stats['sold_heads'] }}</p>
+                @if ($stats['consumed_heads'] > 0)
+                    <p class="text-xs text-gray-500 mt-1">+ {{ $stats['consumed_heads'] }} de consumo propio</p>
+                @endif
             </div>
         </div>
     @else
@@ -467,6 +476,10 @@
             })();
         </script>
     @endcan
+
+    @include('animals._faena_form')
+
+    @include('animals._buyers')
 
     <h2 class="text-xl font-bold mb-3">Historial</h2>
 

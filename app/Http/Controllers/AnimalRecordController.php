@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class AnimalRecordController extends Controller
 {
-    private const HEAD_TYPES = ['mortality', 'sale', 'entry'];
+    private const HEAD_TYPES = ['mortality', 'sale', 'entry', 'consumption'];
 
     public function store(Request $request, Animal $animal)
     {

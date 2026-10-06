@@ -51,7 +51,7 @@ class AnimalRecordsSheet implements FromCollection, WithHeadings, WithMapping, W
 
         $heads = match ($r->type) {
             'entry' => $r->heads,
-            'mortality', 'sale' => $r->heads !== null ? -$r->heads : null,
+            'mortality', 'sale', 'consumption' => $r->heads !== null ? -$r->heads : null,
             default => null,
         };
 
@@ -73,6 +73,7 @@ class AnimalRecordsSheet implements FromCollection, WithHeadings, WithMapping, W
                 'weight' => 'Pesaje',
                 'mortality' => 'Baja (mortalidad)',
                 'sale' => 'Venta',
+                'consumption' => 'Consumo propio',
                 'entry' => 'Ingreso de animales',
                 default => 'Tratamiento',
             },

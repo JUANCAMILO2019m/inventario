@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPhoto;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Animal extends Model
 {
@@ -46,11 +47,14 @@ class Animal extends Model
 
     public function hasHeadMovements(): bool
     {
-        return $this->records()->whereIn('type', ['entry', 'mortality', 'sale'])->exists();
+        return $this->records()
+            ->whereIn('type', ['entry', 'mortality', 'sale', 'consumption'])
+            ->exists();
     }
 
     /**
-     * 'entry' suma cabezas; 'mortality' y 'sale' restan. Con $reverse se deshace el movimiento.
+     * 'entry' suma cabezas; 'mortality', 'sale' y 'consumption' restan.
+     * Con $reverse se deshace el movimiento.
      */
     public function adjustHeads(string $type, int $heads, bool $reverse = false): void
     {
@@ -70,7 +74,7 @@ class Animal extends Model
         $attributes = ['quantity' => $new];
 
         if ($new === 0 && !$reverse) {
-            $attributes['status'] = $type === 'sale' ? 'sold' : 'dead';
+            $attributes['status'] = in_array($type, ['sale', 'consumption'], true) ? 'sold' : 'dead';
         } elseif ($new > 0 && $current === 0) {
             $attributes['status'] = 'active';
         }
@@ -91,6 +95,7 @@ class Animal extends Model
         $entered = $this->isLot() ? (int) $this->initial_quantity + $heads('entry') : 1;
         $deaths = $heads('mortality');
         $soldHeads = $heads('sale');
+        $consumedHeads = $heads('consumption');
 
         // Costos
         $consumption = fn ($r) => (float) $r->unit_cost * (float) $r->product_quantity;
@@ -115,18 +120,30 @@ class Animal extends Model
         $closed = $this->isLot() ? (int) $this->quantity === 0 : $this->status !== 'active';
         $margin = $revenue - $totalCost;
 
-        // Último peso promedio conocido (pesaje o venta con peso)
-        $last = $records->map(function ($r) {
-            if ($r->type === 'weight' && $r->weight !== null) {
-                return ['ts' => $r->recorded_at->timestamp, 'id' => $r->id, 'avg' => (float) $r->weight, 'type' => $r->weight_type];
-            }
+        // Último peso promedio conocido: pesaje, o promedio de las ventas con peso de un mismo día
+        $weighed = $records->where('type', 'weight')
+            ->filter(fn ($r) => $r->weight !== null)
+            ->map(fn ($r) => [
+                'ts'   => $r->recorded_at->timestamp,
+                'id'   => $r->id,
+                'avg'  => (float) $r->weight,
+                'type' => $r->weight_type,
+            ]);
 
-            if ($r->type === 'sale' && $r->total_weight && $r->heads) {
-                return ['ts' => $r->recorded_at->timestamp, 'id' => $r->id, 'avg' => (float) $r->total_weight / (int) $r->heads, 'type' => $r->weight_type];
-            }
+        $saleDays = $records->where('type', 'sale')
+            ->filter(fn ($r) => $r->total_weight && $r->heads)
+            ->groupBy(fn ($r) => $r->recorded_at->timestamp)
+            ->map(fn ($group, $ts) => [
+                'ts'   => (int) $ts,
+                'id'   => (int) $group->max('id'),
+                'avg'  => (float) $group->sum('total_weight') / (int) $group->sum('heads'),
+                'type' => $group->contains('weight_type', 'estimated') ? 'estimated' : $group->first()->weight_type,
+            ]);
 
-            return null;
-        })->filter()->sortBy([['ts', 'desc'], ['id', 'desc']])->values()->first();
+        $last = $weighed->concat($saleDays)
+            ->sortBy([['ts', 'desc'], ['id', 'desc']])
+            ->values()
+            ->first();
 
         $initial = $this->initial_weight;
         $gain = ($initial !== null && $last) ? round($last['avg'] - $initial, 2) : null;
@@ -190,6 +207,7 @@ class Animal extends Model
             'entered'          => $entered,
             'deaths'           => $deaths,
             'sold_heads'       => $soldHeads,
+            'consumed_heads'   => $consumedHeads,
             'mortality_pct'    => $entered > 0 ? round($deaths / $entered * 100, 1) : 0,
             'purchase'         => $purchase,
             'feed_cost'        => $feedCost,
@@ -210,5 +228,59 @@ class Animal extends Model
             'cost_per_kg_gain' => $costPerKgGain,
             'warnings'         => $warnings,
         ];
+    }
+
+    /**
+     * Ventas del lote agrupadas por comprador (sin distinguir mayúsculas).
+     */
+    public function buyerSummary(): Collection
+    {
+        $this->loadMissing('records');
+
+        return $this->records
+            ->where('type', 'sale')
+            ->groupBy(fn ($r) => mb_strtolower(trim($r->title ?: 'Sin comprador')))
+            ->map(function ($group) {
+                $amount = (float) $group->sum('amount');
+                $paid = (float) $group->sum('amount_paid');
+
+                return [
+                    'name'    => trim($group->first()->title ?: 'Sin comprador'),
+                    'sales'   => $group->count(),
+                    'heads'   => (int) $group->sum('heads'),
+                    'amount'  => $amount,
+                    'paid'    => $paid,
+                    'balance' => max(0, round($amount - $paid, 2)),
+                ];
+            })
+            ->sortByDesc('heads')
+            ->values();
+    }
+
+    /**
+     * Faenas registradas: ventas y consumo propio agrupados por batch_id.
+     */
+    public function faenaSummary(): Collection
+    {
+        $this->loadMissing('records');
+
+        return $this->records
+            ->whereNotNull('batch_id')
+            ->groupBy('batch_id')
+            ->map(function ($group, $batchId) {
+                $sales = $group->where('type', 'sale');
+
+                return [
+                    'batch_id'  => $batchId,
+                    'date'      => $group->first()->recorded_at,
+                    'sold'      => (int) $sales->sum('heads'),
+                    'consumed'  => (int) $group->where('type', 'consumption')->sum('heads'),
+                    'buyers'    => $sales->count(),
+                    'amount'    => (float) $sales->sum('amount'),
+                    'collected' => (float) $sales->sum('amount_paid'),
+                ];
+            })
+            ->sortByDesc('date')
+            ->values();
     }
 }

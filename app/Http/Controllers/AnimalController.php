@@ -71,8 +71,10 @@ class AnimalController extends Controller
 
         $products = Product::orderBy('name')->get();
         $stats = $animal->stats();
+        $buyers = $animal->isLot() ? $animal->buyerSummary() : collect();
+        $faenas = $animal->isLot() ? $animal->faenaSummary() : collect();
 
-        return view('animals.show', compact('animal', 'records', 'products', 'stats'));
+        return view('animals.show', compact('animal', 'records', 'products', 'stats', 'buyers', 'faenas'));
     }
 
     public function edit(Animal $animal)
