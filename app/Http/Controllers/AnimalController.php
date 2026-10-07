@@ -6,6 +6,7 @@ use App\Exports\AnimalsExport;
 use App\Models\Animal;
 use App\Models\Product;
 use App\Services\ImageStorage;
+use App\Services\AnimalCharts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -74,9 +75,15 @@ class AnimalController extends Controller
         $buyers = $animal->isLot() ? $animal->buyerSummary() : collect();
         $faenas = $animal->isLot() ? $animal->faenaSummary() : collect();
 
-        return view('animals.show', compact('animal', 'records', 'products', 'stats', 'buyers', 'faenas'));
-    }
+        $charts = [
+            'weight' => AnimalCharts::weight($animal),
+            'heads'  => $animal->isLot() ? AnimalCharts::heads($animal) : null,
+            'feed'   => AnimalCharts::feed($animal),
+        ];
 
+        return view('animals.show', compact('animal', 'records', 'products', 'stats', 'buyers', 'faenas', 'charts'));
+    }
+    
     public function edit(Animal $animal)
     {
         return view('animals.edit', compact('animal'));

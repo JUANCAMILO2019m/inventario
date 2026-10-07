@@ -28,6 +28,8 @@
             <p class="text-2xl sm:text-3xl font-bold">{{ $totalCategories }}</p>
         </div>
     </div>
+    
+    @include('dashboard._chart')
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Stock bajo -->

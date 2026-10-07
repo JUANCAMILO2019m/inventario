@@ -6,11 +6,13 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Animal;
 use App\Models\AnimalRecord;
+use App\Services\DashboardCharts;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $totalProducts = Product::count();
 
@@ -58,6 +60,12 @@ class DashboardController extends Controller
 
         $receivableTotal = $receivables->sum(fn ($r) => (float) $r->amount - (float) $r->amount_paid);
 
+        $months = in_array((int) $request->query('months'), [6, 12, 24], true)
+            ? (int) $request->query('months')
+            : 12;
+
+        $monthly = DashboardCharts::monthly($months);
+
         return view('dashboard', compact(
             'totalProducts',
             'totalValue',
@@ -68,7 +76,9 @@ class DashboardController extends Controller
             'activeAnimals',
             'upcomingDue',
             'receivables',
-            'receivableTotal'
+            'receivableTotal',
+            'monthly',
+            'months'
         ));
     }
 }

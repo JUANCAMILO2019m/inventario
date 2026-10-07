@@ -224,7 +224,9 @@
             </ul>
         @endif
     </div>
-
+    
+    @include('animals._charts')
+    
     @if ($animal->description)
         <div class="bg-white shadow rounded p-4 mb-6">
             <p class="text-sm text-gray-500 mb-1">Descripción</p>
