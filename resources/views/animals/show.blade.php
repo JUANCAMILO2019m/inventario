@@ -502,7 +502,12 @@
             <tbody class="divide-y">
                 @forelse ($records as $r)
                     <tr>
-                        <td class="px-4 py-3 whitespace-nowrap">{{ $r->recorded_at->format('d/m/Y') }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {{ $r->recorded_at->format('d/m/Y') }}
+                            @if ($r->user)
+                                <span class="block text-xs text-gray-400">{{ $r->user->name }}</span>
+                            @endif
+                        </td>
                         <td class="px-4 py-3">{{ $typeLabels[$r->type] ?? $r->type }}</td>
                         <td class="px-4 py-3">
                             {{ $detail($r) }}
@@ -545,6 +550,7 @@
                     <span class="font-semibold">{{ $typeLabels[$r->type] ?? $r->type }}</span>
                     <span class="text-sm text-gray-500">{{ $r->recorded_at->format('d/m/Y') }}</span>
                 </div>
+                @if ($r->user)<p class="text-xs text-gray-400">Registró: {{ $r->user->name }}</p>@endif
                 <p class="text-sm mt-1">{{ $detail($r) }}</p>
                 @include('animals._sale_payment', ['r' => $r, 'animal' => $animal])
                 @if ($r->product)

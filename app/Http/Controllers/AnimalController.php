@@ -65,7 +65,7 @@ class AnimalController extends Controller
     public function show(Animal $animal)
     {
         $records = $animal->records()
-            ->with('product')
+            ->with(['product', 'user'])
             ->orderByDesc('recorded_at')
             ->orderByDesc('id')
             ->paginate(15);

@@ -10,6 +10,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\AnimalRecordController;
 use App\Http\Controllers\AnimalFaenaController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -37,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('animals', AnimalController::class)->only(['index', 'show']);
     Route::get('/movements/export', [MovementController::class, 'export'])->name('movements.export');
     Route::get('/movements', [MovementController::class, 'index'])->name('movements.index');
+    Route::get('/reports/waste', [ReportController::class, 'waste'])->name('reports.waste');
 
     // Escritura de productos, categorias y movimientos: solo superadmin y admin
     Route::middleware('can:modify-inventory')->group(function () {
@@ -48,6 +51,7 @@ Route::middleware('auth')->group(function () {
     // Gestion de usuarios: solo superadmin
     Route::middleware('can:manage-users')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
+        Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Concerns\Auditable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -15,13 +15,8 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Auditable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -30,7 +25,18 @@ class User extends Authenticatable
         ];
     }
 
-     public function isSuperAdmin(): bool
+    protected function auditExcept(): array
+    {
+        return ['remember_token'];
+    }
+
+    // El cambio de contraseña se registra, pero nunca su valor
+    protected function auditMasked(): array
+    {
+        return ['password'];
+    }
+
+    public function isSuperAdmin(): bool
     {
         return $this->role === 'superadmin';
     }

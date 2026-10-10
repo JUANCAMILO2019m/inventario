@@ -93,7 +93,7 @@ class ProductController extends Controller
         $product = Product::create($data);
 
         if ($initial > 0) {
-            $product->registerMovement('in', $initial, 'Stock inicial');
+            $product->registerMovement('in', $initial, 'Stock inicial', 'initial');
         }
 
         return redirect()->route('products.index')
@@ -133,7 +133,7 @@ class ProductController extends Controller
         $product->update($data);
 
         if (abs($newQuantity - (float) $product->quantity) > 0.0005) {
-            $product->registerMovement('adjust', $newQuantity, 'Ajuste desde edición');
+            $product->registerMovement('adjust', $newQuantity, 'Ajuste desde edición', 'correction');
         }
 
         return redirect()->route('products.index')

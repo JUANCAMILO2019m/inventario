@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasPhoto;
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class Animal extends Model
 {
-    use HasPhoto;
+    use HasPhoto, Auditable;
 
     protected $fillable = [
         'type', 'name', 'code', 'species', 'breed', 'sex',
@@ -24,6 +25,11 @@ class Animal extends Model
             'purchase_cost'  => 'float',
             'initial_weight' => 'float',
         ];
+    }
+
+    protected function auditExcept(): array
+    {
+        return ['quantity'];
     }
 
     public function records()

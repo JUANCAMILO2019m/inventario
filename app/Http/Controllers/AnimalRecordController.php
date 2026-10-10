@@ -92,7 +92,8 @@ class AnimalRecordController extends Controller
                         $product->registerMovement(
                             'in',
                             (float) $record->product_quantity,
-                            "Reverso por eliminacion de registro - {$animal->name}"
+                            "Reverso por eliminacion de registro - {$animal->name}",
+                            'reversal'
                         );
                     }
                 }
@@ -188,7 +189,8 @@ class AnimalRecordController extends Controller
             $movement = $product->registerMovement(
                 'out',
                 (float) $data['product_quantity'],
-                "{$reasonType} - {$animal->name}"
+                "{$reasonType} - {$animal->name}",
+                'animal_use'
             );
 
             AnimalRecord::create($record + [
