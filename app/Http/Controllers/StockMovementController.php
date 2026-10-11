@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\PurchaseItem;
 
 class StockMovementController extends Controller
 {
@@ -13,7 +14,14 @@ class StockMovementController extends Controller
     {
         $movements = $product->movements()->with('user')->latest('id')->paginate(20);
 
-        return view('movements.index', compact('product', 'movements'));
+        $purchases = PurchaseItem::with('purchase.supplier')
+            ->where('product_id', $product->id)
+            ->whereHas('purchase', fn ($q) => $q->whereNull('voided_at'))
+            ->latest('id')
+            ->limit(10)
+            ->get();
+
+        return view('movements.index', compact('product', 'movements', 'purchases'));
     }
 
     public function store(Request $request, Product $product)

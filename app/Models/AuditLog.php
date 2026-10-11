@@ -31,6 +31,8 @@ class AuditLog extends Model
             Animal::class       => 'Animal',
             AnimalRecord::class => 'Registro de animal',
             User::class         => 'Usuario',
+            Supplier::class => 'Proveedor',
+            Purchase::class => 'Compra',
         ];
     }
 

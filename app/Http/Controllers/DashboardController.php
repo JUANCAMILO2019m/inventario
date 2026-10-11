@@ -7,6 +7,7 @@ use App\Models\StockMovement;
 use App\Models\Animal;
 use App\Models\AnimalRecord;
 use App\Services\DashboardCharts;
+use App\Services\ExpiryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,6 +66,9 @@ class DashboardController extends Controller
             : 12;
 
         $monthly = DashboardCharts::monthly($months);
+        $expiring = ExpiryService::batches(30);
+        $expiringTotal = $expiring->count();
+        $expiring = $expiring->take(8);
 
         return view('dashboard', compact(
             'totalProducts',
@@ -78,7 +82,9 @@ class DashboardController extends Controller
             'receivables',
             'receivableTotal',
             'monthly',
-            'months'
+            'months',
+            'expiring',
+            'expiringTotal'
         ));
     }
 }

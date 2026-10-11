@@ -79,10 +79,10 @@
                         </a>
 
                         <a href="{{ route('movements.index') }}"
-                           class="rounded-lg px-3 py-2.5 text-sm font-medium transition
-                           {{ request()->routeIs('movements.*')
-                               ? 'bg-emerald-500 text-white shadow-sm'
-                               : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
+                            class="rounded-lg px-3 py-2.5 text-sm font-medium transition
+                            {{ request()->routeIs('movements.*')
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
                             <span class="mr-1">↔</span> Historial
                         </a>
 
@@ -96,13 +96,13 @@
                                             [&::-webkit-details-marker]:hidden">
                                 Más
                                 <svg class="h-4 w-4 transition-transform"
-                                     xmlns="http://www.w3.org/2000/svg"
-                                     fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
                                     <path stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          stroke-width="2"
-                                          d="m19 9-7 7-7-7"/>
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m19 9-7 7-7-7"/>
                                 </svg>
                             </summary>
 
@@ -110,31 +110,38 @@
                                         rounded-xl border border-slate-200 bg-white
                                         py-2 text-slate-700 shadow-xl">
 
+                                <a href="{{ route('purchases.index') }}"
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    🛒 Compras
+                                </a>
+
+                                <a href="{{ route('suppliers.index') }}"
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    🤝 Proveedores
+                                </a>
+
+                                <a href="{{ route('expirations.index') }}"
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    📅 Vencimientos
+                                </a>
+
                                 <a href="{{ route('reports.waste') }}"
-                                   class="block px-4 py-3 text-sm transition
-                                          hover:bg-emerald-50 hover:text-emerald-800">
-                                    <span class="mr-2">📉</span>
-                                    Pérdidas y mermas
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    📉 Pérdidas y mermas
                                 </a>
 
                                 @can('manage-users')
-
                                     <div class="mx-3 my-1 border-t border-slate-100"></div>
 
                                     <a href="{{ route('users.index') }}"
-                                       class="block px-4 py-3 text-sm transition
-                                              hover:bg-emerald-50 hover:text-emerald-800">
-                                        <span class="mr-2">👥</span>
-                                        Usuarios
+                                    class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                        👥 Usuarios
                                     </a>
 
                                     <a href="{{ route('audit.index') }}"
-                                       class="block px-4 py-3 text-sm transition
-                                              hover:bg-emerald-50 hover:text-emerald-800">
-                                        <span class="mr-2">📋</span>
-                                        Actividad
+                                    class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                        📋 Actividad
                                     </a>
-
                                 @endcan
                             </div>
                         </details>
@@ -152,8 +159,8 @@
                         <div class="hidden items-center gap-2 border-l border-emerald-800 pl-3 xl:flex">
 
                             <a href="{{ route('profile.edit') }}"
-                               class="flex items-center gap-2 rounded-lg px-2 py-2
-                                      transition hover:bg-emerald-900">
+                                class="flex items-center gap-2 rounded-lg px-2 py-2
+                                        transition hover:bg-emerald-900">
 
                                 <div class="flex h-9 w-9 items-center justify-center
                                             rounded-full bg-emerald-700 font-bold
@@ -171,8 +178,8 @@
 
                                 <button type="submit"
                                         class="rounded-lg border border-red-400/30
-                                               px-3 py-2 text-sm font-medium text-red-200
-                                               transition hover:bg-red-500 hover:text-white">
+                                                px-3 py-2 text-sm font-medium text-red-200
+                                                transition hover:bg-red-500 hover:text-white">
                                     Salir
                                 </button>
                             </form>

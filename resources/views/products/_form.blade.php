@@ -84,6 +84,37 @@
             <option value="dosis" @selected(old('unit', $product->unit ?? '') === 'dosis')>Dosis</option>
             <option value="frasco" @selected(old('unit', $product->unit ?? '') === 'frasco')>Frasco</option>
         </select>
+        <div class="md:col-span-2 bg-gray-50 border border-gray-200 rounded p-3">
+            <p class="text-sm font-medium">Empaque de compra (opcional)</p>
+            <p class="text-xs text-gray-500 mb-2">
+                Si lo compras en bultos, cajas o frascos, indica cuántas unidades de medida trae cada uno. Así podrás registrar
+                compras por empaque ("2 bultos") y el sistema las convierte (80 kg).
+            </p>
+            <div class="flex flex-wrap gap-3">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">Nombre del empaque</label>
+                    <input type="text" name="package_name" maxlength="30" placeholder="bulto, caja, saco..."
+                        value="{{ old('package_name', $product->package_name ?? '') }}"
+                        class="rounded border border-gray-300 px-3 py-2 w-44">
+                    @error('package_name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">
+                        Contenido de cada uno (<span id="pkg-unit">{{ old('unit', $product->unit ?? 'unidad') }}</span>)
+                    </label>
+                    <input type="number" step="0.001" min="0.001" name="package_size" placeholder="Ej: 40"
+                        value="{{ old('package_size', $product->package_size ?? '') }}"
+                        class="rounded border border-gray-300 px-3 py-2 w-40">
+                    @error('package_size') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('unit').addEventListener('change', function () {
+                document.getElementById('pkg-unit').textContent = this.value;
+            });
+        </script>
         @error('unit') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 

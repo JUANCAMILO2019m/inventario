@@ -5,11 +5,19 @@
 @section('content')
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">Productos</h1>
+
         @can('modify-inventory')
-            <a href="{{ route('products.create') }}"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                + Nuevo producto
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('purchases.create') }}"
+                    class="px-4 py-2 rounded border border-blue-600 text-blue-700 hover:bg-blue-50">
+                    Registrar compra
+                </a>
+
+                <a href="{{ route('products.create') }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    + Nuevo producto
+                </a>
+            </div>
         @endcan
     </div>
 
@@ -80,6 +88,9 @@
                     <td class="px-4 py-3">{{ $p->category?->name ?? '—' }}</td>
                     <td class="px-4 py-3">
                         {{ rtrim(rtrim(number_format($p->quantity, 3), '0'), '.') }} {{ $p->unit }}
+                        @if ($p->packagesLabel())
+                            <span class="block text-xs text-gray-500">{{ $p->packagesLabel() }}</span>
+                        @endif
                         @if ($p->quantity <= $p->min_stock)
                             <span class="ml-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Stock bajo</span>
                         @endif

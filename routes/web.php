@@ -1,17 +1,20 @@
 <?php
 
+use App\Http\Controllers\AnimalController;
+use App\Http\Controllers\AnimalFaenaController;
+use App\Http\Controllers\AnimalRecordController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpirationController;
 use App\Http\Controllers\MovementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\StockMovementController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\AnimalController;
-use App\Http\Controllers\AnimalRecordController;
-use App\Http\Controllers\AnimalFaenaController;
-use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -19,8 +22,8 @@ Route::redirect('/', '/dashboard');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Escritura de animales: solo superadmin y admin (registrada PRIMERO, para que
-    // "animals/create" no choque con "animals/{animal}" de la ruta de lectura de abajo)
+    // Escritura que debe registrarse ANTES que las rutas de lectura con comodín
+    // (para que "animals/create" no choque con "animals/{animal}", ni "purchases/create" con "purchases/{purchase}")
     Route::middleware('can:modify-inventory')->group(function () {
         Route::resource('animals', AnimalController::class)->except(['index', 'show']);
         Route::post('/animals/{animal}/records', [AnimalRecordController::class, 'store'])->name('animals.records.store');
@@ -28,9 +31,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/animals/{animal}/records/{record}/payment', [AnimalRecordController::class, 'addPayment'])->name('animals.records.payment');
         Route::post('/animals/{animal}/faenas', [AnimalFaenaController::class, 'store'])->name('animals.faenas.store');
         Route::delete('/animals/{animal}/faenas/{batch}', [AnimalFaenaController::class, 'destroy'])->name('animals.faenas.destroy');
+
+        Route::resource('purchases', PurchaseController::class)->only(['create', 'store']);
+        Route::post('/purchases/{purchase}/cancel', [PurchaseController::class, 'cancel'])->name('purchases.cancel');
     });
 
-    // Lectura: disponible para los tres roles (superadmin, admin, personal)
+    // Lectura: disponible para los tres roles
     Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
     Route::resource('products', ProductController::class)->only(['index']);
     Route::resource('categories', CategoryController::class)->only(['index']);
@@ -40,15 +46,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/movements/export', [MovementController::class, 'export'])->name('movements.export');
     Route::get('/movements', [MovementController::class, 'index'])->name('movements.index');
     Route::get('/reports/waste', [ReportController::class, 'waste'])->name('reports.waste');
+    Route::resource('suppliers', SupplierController::class)->only(['index']);
+    Route::resource('purchases', PurchaseController::class)->only(['index', 'show']);
+    Route::get('/expirations', [ExpirationController::class, 'index'])->name('expirations.index');
 
-    // Escritura de productos, categorias y movimientos: solo superadmin y admin
+    // Escritura de productos, categorías, movimientos, proveedores y vencimientos
     Route::middleware('can:modify-inventory')->group(function () {
         Route::resource('products', ProductController::class)->except(['index']);
         Route::resource('categories', CategoryController::class)->except(['index']);
         Route::resource('products.movements', StockMovementController::class)->only(['store']);
+        Route::resource('suppliers', SupplierController::class)->except(['index', 'show']);
+        Route::post('/expirations', [ExpirationController::class, 'store'])->name('expirations.store');
+        Route::post('/expirations/{batch}/expire', [ExpirationController::class, 'expire'])->name('expirations.expire');
+        Route::delete('/expirations/{batch}', [ExpirationController::class, 'destroy'])->name('expirations.destroy');
     });
 
-    // Gestion de usuarios: solo superadmin
+    // Usuarios y actividad: solo superadmin
     Route::middleware('can:manage-users')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
         Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');

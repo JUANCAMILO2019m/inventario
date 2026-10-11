@@ -93,6 +93,58 @@
         </script>
     @endcan
 
+    @if ($purchases->isNotEmpty())
+        <div class="bg-white shadow rounded mb-4">
+            <div class="px-4 py-3 border-b flex flex-wrap items-center justify-between gap-2">
+                <h2 class="font-semibold">Compras recientes</h2>
+                <span class="text-sm text-gray-500">
+                    Costo promedio actual:
+                    {{ $product->price !== null ? '$' . number_format((float) $product->price, 2) . ' / ' . $product->unit : 'sin precio' }}
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                        <tr>
+                            <th class="px-4 py-2">Fecha</th>
+                            <th class="px-4 py-2">Proveedor</th>
+                            <th class="px-4 py-2">Cantidad</th>
+                            <th class="px-4 py-2">Costo por {{ $product->unit }}</th>
+                            <th class="px-4 py-2">Variación</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        @foreach ($purchases as $i => $it)
+                            @php
+                                $older = $purchases[$i + 1] ?? null;
+                                $var = ($older && $older->unit_cost > 0) ? ($it->unit_cost - $older->unit_cost) / $older->unit_cost * 100 : null;
+                            @endphp
+                            <tr>
+                                <td class="px-4 py-2 whitespace-nowrap">
+                                    <a href="{{ route('purchases.show', $it->purchase_id) }}" class="text-blue-600 hover:underline">
+                                        {{ $it->purchase->purchased_at->format('d/m/Y') }}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-2">{{ $it->purchase->supplier?->name ?? '—' }}</td>
+                                <td class="px-4 py-2">{{ $fmt($it->quantity) }} {{ $product->unit }}</td>
+                                <td class="px-4 py-2">${{ number_format($it->unit_cost, 2) }}</td>
+                                <td class="px-4 py-2">
+                                    @if ($var === null)
+                                        <span class="text-gray-400">—</span>
+                                    @else
+                                        <span class="{{ $var > 0 ? 'text-red-600' : 'text-green-700' }} font-semibold">
+                                            {{ $var > 0 ? '+' : '' }}{{ number_format($var, 1) }}%
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+    
     {{-- Tabla --}}
     <div class="hidden md:block bg-white shadow rounded overflow-x-auto">
         <table class="w-full text-left">

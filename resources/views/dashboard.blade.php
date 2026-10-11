@@ -143,4 +143,7 @@
         @endforelse
     </div>
 </div>
+
+@include('dashboard._expiring')
+
 @endsection
