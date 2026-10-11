@@ -208,12 +208,12 @@
 
             <!-- MENÚ RESPONSIVE -->
             <div id="mobile-menu"
-                 class="hidden border-t border-emerald-800 py-4 lg:hidden">
+                class="hidden border-t border-emerald-800 py-4 lg:hidden">
 
                 @auth
 
+                    <!-- Perfil del usuario -->
                     <div class="mb-4 flex items-center gap-3 rounded-xl bg-emerald-900 p-3">
-
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center
                                     rounded-full bg-emerald-600 font-bold text-white">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
@@ -227,78 +227,107 @@
                                 {{ auth()->user()->email }}
                             </p>
                         </div>
-
                     </div>
 
                     <div class="grid gap-1">
 
                         <a href="{{ route('dashboard') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('dashboard')
-                               ? 'bg-emerald-500 text-white'
-                               : 'text-emerald-100 hover:bg-emerald-900' }}">
+                        class="rounded-lg px-4 py-3 text-sm font-medium transition
+                        {{ request()->routeIs('dashboard') ? 'bg-emerald-500 text-white' : 'text-emerald-100 hover:bg-emerald-900' }}">
                             ⌂ &nbsp; Dashboard
                         </a>
 
                         <a href="{{ route('products.index') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('products.*')
-                               ? 'bg-emerald-500 text-white'
-                               : 'text-emerald-100 hover:bg-emerald-900' }}">
+                        class="rounded-lg px-4 py-3 text-sm font-medium transition
+                        {{ request()->routeIs('products.*') ? 'bg-emerald-500 text-white' : 'text-emerald-100 hover:bg-emerald-900' }}">
                             📦 &nbsp; Productos
                         </a>
 
                         <a href="{{ route('categories.index') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('categories.*')
-                               ? 'bg-emerald-500 text-white'
-                               : 'text-emerald-100 hover:bg-emerald-900' }}">
+                        class="rounded-lg px-4 py-3 text-sm font-medium transition
+                        {{ request()->routeIs('categories.*') ? 'bg-emerald-500 text-white' : 'text-emerald-100 hover:bg-emerald-900' }}">
                             ▦ &nbsp; Categorías
                         </a>
 
                         <a href="{{ route('animals.index') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('animals.*')
-                               ? 'bg-emerald-500 text-white'
-                               : 'text-emerald-100 hover:bg-emerald-900' }}">
+                        class="rounded-lg px-4 py-3 text-sm font-medium transition
+                        {{ request()->routeIs('animals.*') ? 'bg-emerald-500 text-white' : 'text-emerald-100 hover:bg-emerald-900' }}">
                             🐄 &nbsp; Animales
                         </a>
 
                         <a href="{{ route('movements.index') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium transition
-                           {{ request()->routeIs('movements.*')
-                               ? 'bg-emerald-500 text-white'
-                               : 'text-emerald-100 hover:bg-emerald-900' }}">
+                        class="rounded-lg px-4 py-3 text-sm font-medium transition
+                        {{ request()->routeIs('movements.*') ? 'bg-emerald-500 text-white' : 'text-emerald-100 hover:bg-emerald-900' }}">
                             ↔ &nbsp; Historial
                         </a>
 
+                        <!-- DESPLEGABLE MÁS PARA MÓVIL -->
+                        <details class="group mt-1">
+
+                            <summary class="flex cursor-pointer list-none items-center
+                                            justify-between rounded-lg px-4 py-3
+                                            text-sm font-medium text-emerald-100
+                                            transition hover:bg-emerald-900
+                                            [&::-webkit-details-marker]:hidden">
+                                <span>☰ &nbsp; Más opciones</span>
+
+                                <svg class="h-4 w-4 transition-transform group-open:rotate-180"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m19 9-7 7-7-7"/>
+                                </svg>
+                            </summary>
+
+                            <div class="mt-1 ml-3 grid gap-1 border-l-2
+                                        border-emerald-700 pl-3">
+
+                                <a href="{{ route('purchases.index') }}"
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    🛒 &nbsp; Compras
+                                </a>
+
+                                <a href="{{ route('suppliers.index') }}"
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    🤝 &nbsp; Proveedores
+                                </a>
+
+                                <a href="{{ route('expirations.index') }}"
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    📅 &nbsp; Vencimientos
+                                </a>
+
+                                <a href="{{ route('reports.waste') }}"
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    📉 &nbsp; Pérdidas y mermas
+                                </a>
+
+                                @can('manage-users')
+
+                                    <div class="my-1 border-t border-emerald-800"></div>
+
+                                    <a href="{{ route('users.index') }}"
+                                    class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                        👥 &nbsp; Usuarios
+                                    </a>
+
+                                    <a href="{{ route('audit.index') }}"
+                                    class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                        📋 &nbsp; Actividad
+                                    </a>
+
+                                @endcan
+
+                            </div>
+                        </details>
+
                         <div class="my-2 border-t border-emerald-800"></div>
 
-                        <a href="{{ route('reports.waste') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium text-emerald-100
-                                  transition hover:bg-emerald-900">
-                            📉 &nbsp; Pérdidas y mermas
-                        </a>
-
-                        @can('manage-users')
-
-                            <a href="{{ route('users.index') }}"
-                               class="rounded-lg px-4 py-3 text-sm font-medium text-emerald-100
-                                      transition hover:bg-emerald-900">
-                                👥 &nbsp; Usuarios
-                            </a>
-
-                            <a href="{{ route('audit.index') }}"
-                               class="rounded-lg px-4 py-3 text-sm font-medium text-emerald-100
-                                      transition hover:bg-emerald-900">
-                                📋 &nbsp; Actividad
-                            </a>
-
-                        @endcan
-
                         <a href="{{ route('profile.edit') }}"
-                           class="rounded-lg px-4 py-3 text-sm font-medium text-emerald-100
-                                  transition hover:bg-emerald-900">
+                        class="rounded-lg px-4 py-3 text-sm font-medium text-emerald-100 transition hover:bg-emerald-900">
                             ⚙ &nbsp; Mi perfil
                         </a>
 
@@ -307,9 +336,9 @@
 
                             <button type="submit"
                                     class="w-full rounded-lg border border-red-400/30
-                                           px-4 py-3 text-left text-sm font-semibold
-                                           text-red-200 transition hover:bg-red-500
-                                           hover:text-white">
+                                        px-4 py-3 text-left text-sm font-semibold
+                                        text-red-200 transition hover:bg-red-500
+                                        hover:text-white">
                                 ↪ &nbsp; Cerrar sesión
                             </button>
                         </form>
