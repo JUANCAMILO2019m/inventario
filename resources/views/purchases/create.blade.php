@@ -39,15 +39,15 @@
                     <select name="supplier_id" id="supplier-id" class="{{ $input }}">
                         <option value="">— Sin proveedor —</option>
                         @foreach ($suppliers as $s)
-                            <option value="{{ $s->id }}" @selected((string) old('supplier_id') === (string) $s->id)>{{ $s->name }}</option>
+                            <option value="{{ $s->id }}" @selected((string) old('supplier_id', $prefillSupplier ?? '') === (string) $s->id)>{{ $s->name }}</option>
                         @endforeach
                     </select>
 
                     <div id="sup-box" class="hidden mt-2 flex flex-wrap gap-2">
                         <input type="text" id="sup-name" placeholder="Nombre del proveedor" maxlength="255"
-                               class="flex-1 min-w-[160px] rounded border border-gray-300 px-3 py-2 text-sm">
+                                class="flex-1 min-w-[160px] rounded border border-gray-300 px-3 py-2 text-sm">
                         <input type="text" id="sup-phone" placeholder="Teléfono (opcional)" maxlength="50"
-                               class="w-44 rounded border border-gray-300 px-3 py-2 text-sm">
+                                class="w-44 rounded border border-gray-300 px-3 py-2 text-sm">
                         <button type="button" id="sup-save" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm">Guardar</button>
                     </div>
                     <p id="sup-error" class="text-red-600 text-sm mt-1 hidden"></p>
@@ -56,7 +56,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-1">Fecha de compra *</label>
                     <input type="date" name="purchased_at" value="{{ old('purchased_at', date('Y-m-d')) }}"
-                           max="{{ date('Y-m-d') }}" required class="{{ $input }}">
+                            max="{{ date('Y-m-d') }}" required class="{{ $input }}">
                 </div>
 
                 <div>
@@ -96,7 +96,7 @@
         (function () {
             const products = @json($products->map(fn ($p) => ['id' => $p->id, 'name' => $p->name])->values());
             const meta = @json($productData);
-            const initial = @json(old('items', []));
+            const initial = @json(old('items', $prefill ?? []));
 
             const itemsBox = document.getElementById('items');
             const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
@@ -245,6 +245,7 @@
 
                 itemsBox.appendChild(row);
                 refreshMode(row, data.mode || null);
+                sync(row);
             }
 
             document.getElementById('add-item').addEventListener('click', () => { addRow({}); refresh(); });

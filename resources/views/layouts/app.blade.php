@@ -130,6 +130,11 @@
                                     📉 Pérdidas y mermas
                                 </a>
 
+                                <a href="{{ route('reorder.index') }}" 
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    📦 Reabastecimiento
+                                </a>
+
                                 @can('manage-users')
                                     <div class="mx-3 my-1 border-t border-slate-100"></div>
 
@@ -194,11 +199,11 @@
                             aria-controls="mobile-menu"
                             aria-expanded="false"
                             class="flex h-11 w-11 items-center justify-center
-                                   rounded-xl border border-emerald-700
-                                   bg-emerald-900 text-xl text-white
-                                   transition hover:bg-emerald-800
-                                   focus:outline-none focus:ring-2
-                                   focus:ring-emerald-400 lg:hidden">
+                                    rounded-xl border border-emerald-700
+                                    bg-emerald-900 text-xl text-white
+                                    transition hover:bg-emerald-800
+                                    focus:outline-none focus:ring-2
+                                    focus:ring-emerald-400 lg:hidden">
 
                         <span id="menu-icon">☰</span>
                     </button>
@@ -303,6 +308,11 @@
                                 <a href="{{ route('reports.waste') }}"
                                 class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
                                     📉 &nbsp; Pérdidas y mermas
+                                </a>
+
+                                <a href="{{ route('reorder.index') }}" 
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    📦 &nbsp; Reabastecimiento
                                 </a>
 
                                 @can('manage-users')

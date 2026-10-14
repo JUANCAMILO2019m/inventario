@@ -50,11 +50,51 @@ class PurchaseController extends Controller
         return view('purchases.index', compact('purchases', 'suppliers', 'total'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $products = Product::orderBy('name')->get(['id', 'name', 'unit', 'package_name', 'package_size', 'price', 'quantity']);
+        $byId = $products->keyBy('id');
+
+        $prefill = [];
+
+        foreach (array_slice((array) $request->query('prefill', []), 0, 50) as $line) {
+            if (!is_array($line)) {
+                continue;
+            }
+
+            $product = $byId->get((int) ($line['product_id'] ?? 0));
+            $qty = (float) ($line['qty'] ?? 0);
+
+            if (!$product || $qty <= 0) {
+                continue;
+            }
+
+            $wantsPackage = ($line['mode'] ?? '') === 'package';
+            $mode = ($wantsPackage && (float) $product->package_size > 0) ? 'package' : 'unit';
+
+            // Si el empaque ya no existe, el precio por empaque ya no sirve
+            $price = (isset($line['price']) && is_numeric($line['price']) && (float) $line['price'] >= 0
+                && !($wantsPackage && $mode !== 'package'))
+                ? round((float) $line['price'], 2)
+                : null;
+
+            $prefill[] = array_filter([
+                'product_id' => $product->id,
+                'mode'       => $mode,
+                'qty'        => $qty,
+                'price'      => $price,
+            ], fn ($v) => $v !== null);
+        }
+
+        $prefillSupplier = $request->filled('supplier_id')
+            ? Supplier::whereKey((int) $request->query('supplier_id'))->value('id')
+            : null;
+
         return view('purchases.create', [
-            'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
-            'products'  => Product::orderBy('name')->get(['id', 'name', 'unit', 'package_name', 'package_size', 'price', 'quantity']),
+            'suppliers'       => Supplier::orderBy('name')->get(['id', 'name']),
+            'products'        => $products,
+            'prefill'         => $prefill,
+            'prefillSupplier' => $prefillSupplier,
         ]);
     }
 

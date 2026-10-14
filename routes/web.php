@@ -15,6 +15,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReorderController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class)->only(['index']);
     Route::resource('purchases', PurchaseController::class)->only(['index', 'show']);
     Route::get('/expirations', [ExpirationController::class, 'index'])->name('expirations.index');
+    Route::get('/reorder', [ReorderController::class, 'index'])->name('reorder.index');
 
     // Escritura de productos, categorías, movimientos, proveedores y vencimientos
     Route::middleware('can:modify-inventory')->group(function () {

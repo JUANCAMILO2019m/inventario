@@ -8,6 +8,7 @@ use App\Models\Animal;
 use App\Models\AnimalRecord;
 use App\Services\DashboardCharts;
 use App\Services\ExpiryService;
+use App\Services\ReorderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -69,6 +70,10 @@ class DashboardController extends Controller
         $expiring = ExpiryService::batches(30);
         $expiringTotal = $expiring->count();
         $expiring = $expiring->take(8);
+        $restock = ReorderService::analyze()
+            ->filter(fn ($r) => in_array($r['status'], ['out', 'critical', 'soon'], true));
+        $restockTotal = $restock->count();
+        $restock = $restock->take(6);
 
         return view('dashboard', compact(
             'totalProducts',
@@ -84,7 +89,9 @@ class DashboardController extends Controller
             'monthly',
             'months',
             'expiring',
-            'expiringTotal'
+            'expiringTotal',
+            'restock',
+            'restockTotal'
         ));
     }
 }

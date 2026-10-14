@@ -144,6 +144,8 @@
     </div>
 </div>
 
+@include('dashboard._restock')
+
 @include('dashboard._expiring')
 
 @endsection

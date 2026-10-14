@@ -166,6 +166,7 @@ class ProductController extends Controller
             'remove_photo' => 'nullable|boolean',
             'package_name' => 'nullable|string|max:30|required_with:package_size',
             'package_size' => 'nullable|numeric|gt:0|decimal:0,3|required_with:package_name',
+            'lead_days' => 'nullable|integer|min:0|max:365',
         ]);
     }
 }

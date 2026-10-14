@@ -109,7 +109,15 @@
                 </div>
             </div>
         </div>
-
+        <div>
+            <label class="block text-sm font-medium mb-1">Días que tarda en llegar una compra</label>
+            <input type="number" name="lead_days" min="0" max="365" step="1" placeholder="3"
+                value="{{ old('lead_days', $product->lead_days ?? '') }}" class="{{ $field }}">
+            <p class="text-xs text-gray-500 mt-1">
+                Opcional. Sirve para avisarte con tiempo cuándo comprar. Si lo dejas vacío se asumen 3 días.
+            </p>
+            @error('lead_days') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
         <script>
             document.getElementById('unit').addEventListener('change', function () {
                 document.getElementById('pkg-unit').textContent = this.value;
