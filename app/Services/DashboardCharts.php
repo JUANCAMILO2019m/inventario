@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Animal;
 use App\Models\AnimalRecord;
+use App\Models\Expense;
 
 class DashboardCharts
 {
@@ -15,7 +16,7 @@ class DashboardCharts
         $rows = [];
         for ($i = 0; $i < $months; $i++) {
             $rows[$start->copy()->addMonths($i)->format('Y-m')] = [
-                'sales' => 0.0, 'purchase' => 0.0, 'feed' => 0.0, 'health' => 0.0,
+                'sales' => 0.0, 'purchase' => 0.0, 'feed' => 0.0, 'health' => 0.0, 'other' => 0.0,
             ];
         }
 
@@ -58,12 +59,24 @@ class DashboardCharts
                 }
             });
 
+        // Gastos (asignados a un animal o generales) en el mes de su fecha
+        Expense::query()
+            ->whereDate('spent_at', '>=', $start->toDateString())
+            ->get(['spent_at', 'amount'])
+            ->each(function ($e) use (&$rows) {
+                $key = $e->spent_at->format('Y-m');
+
+                if (isset($rows[$key])) {
+                    $rows[$key]['other'] += (float) $e->amount;
+                }
+            });
+
         $list = [];
         $totalSales = 0.0;
         $totalCost = 0.0;
 
         foreach ($rows as $key => $v) {
-            $cost = $v['purchase'] + $v['feed'] + $v['health'];
+            $cost = $v['purchase'] + $v['feed'] + $v['health'] + $v['other'];
             $totalSales += $v['sales'];
             $totalCost += $cost;
 
@@ -75,6 +88,7 @@ class DashboardCharts
                 'purchase' => round($v['purchase'], 2),
                 'feed'     => round($v['feed'], 2),
                 'health'   => round($v['health'], 2),
+                'other'    => round($v['other'], 2),
             ];
         }
 

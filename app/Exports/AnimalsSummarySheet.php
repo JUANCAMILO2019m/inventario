@@ -33,7 +33,7 @@ class AnimalsSummarySheet implements FromCollection, WithHeadings, WithMapping, 
     {
         return [
             'Animal', 'Código', 'Tipo', 'Estado', 'Ingresadas', 'Bajas', 'Vendidas', 'Mortalidad (%)',
-            'Costo compra', 'Costo alimento', 'Costo sanidad', 'Costo total',
+            'Costo compra', 'Costo alimento', 'Costo sanidad', 'Otros gastos', 'Costo total',
             'Ventas', 'Cobrado', 'Por cobrar', 'Resultado', 'Tipo de resultado',
             'Ganancia por cabeza (kg)', 'Ganancia diaria (g/día)', 'Conversión alimenticia', 'Costo por kg ganado',
         ];
@@ -59,6 +59,7 @@ class AnimalsSummarySheet implements FromCollection, WithHeadings, WithMapping, 
             $s['purchase'],
             $s['feed_cost'],
             $s['health_cost'],
+            $s['other_costs'],
             $s['total_cost'],
             $s['revenue'],
             $s['collected'],

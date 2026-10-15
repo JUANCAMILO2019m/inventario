@@ -75,13 +75,23 @@ class AnimalController extends Controller
         $buyers = $animal->isLot() ? $animal->buyerSummary() : collect();
         $faenas = $animal->isLot() ? $animal->faenaSummary() : collect();
 
+        $expenses = $animal->expenses()
+            ->with('supplier')
+            ->latest('spent_at')
+            ->latest('id')
+            ->limit(5)
+            ->get();
+        $expensesCount = $animal->expenses()->count();
+
         $charts = [
             'weight' => AnimalCharts::weight($animal),
             'heads'  => $animal->isLot() ? AnimalCharts::heads($animal) : null,
             'feed'   => AnimalCharts::feed($animal),
         ];
 
-        return view('animals.show', compact('animal', 'records', 'products', 'stats', 'buyers', 'faenas', 'charts'));
+        return view('animals.show', compact(
+            'animal', 'records', 'products', 'stats', 'buyers', 'faenas', 'charts', 'expenses', 'expensesCount'
+        ));
     }
     
     public function edit(Animal $animal)

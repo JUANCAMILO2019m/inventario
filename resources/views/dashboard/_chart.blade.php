@@ -45,7 +45,7 @@
         <div class="relative h-72"><canvas id="chart-monthly"></canvas></div>
 
         <p class="text-xs text-gray-500 mt-2">
-            Los insumos se cuentan cuando se consumen (no cuando se compran) y la compra de animales, en el mes de ingreso.
+            Los insumos se cuentan cuando se consumen (no cuando se compran) y la compra de animales, en el mes de ingreso, los gastos se cuentan en el mes de su fecha.
             El resultado mensual es una referencia, no una utilidad contable.
         </p>
 
@@ -108,6 +108,7 @@
                                             ' Compra de animales: ' + U.money(r.purchase),
                                             ' Alimento: ' + U.money(r.feed),
                                             ' Sanidad: ' + U.money(r.health),
+                                            ' Otros gastos: ' + U.money(r.other),
                                         ];
                                     },
                                 },

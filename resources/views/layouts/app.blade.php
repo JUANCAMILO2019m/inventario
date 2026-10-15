@@ -22,7 +22,7 @@
 
                 <!-- LOGO -->
                 <a href="{{ route('dashboard') }}"
-                   class="group flex shrink-0 items-center gap-3">
+                    class="group flex shrink-0 items-center gap-3">
 
                     <div class="flex h-11 w-11 items-center justify-center rounded-xl
                                 bg-emerald-500 text-2xl shadow-md transition
@@ -47,34 +47,34 @@
                     @auth
 
                         <a href="{{ route('dashboard') }}"
-                           class="rounded-lg px-3 py-2.5 text-sm font-medium transition
-                           {{ request()->routeIs('dashboard')
-                               ? 'bg-emerald-500 text-white shadow-sm'
-                               : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
+                            class="rounded-lg px-3 py-2.5 text-sm font-medium transition
+                            {{ request()->routeIs('dashboard')
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
                             <span class="mr-1">⌂</span> Dashboard
                         </a>
 
                         <a href="{{ route('products.index') }}"
-                           class="rounded-lg px-3 py-2.5 text-sm font-medium transition
-                           {{ request()->routeIs('products.*')
-                               ? 'bg-emerald-500 text-white shadow-sm'
-                               : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
+                            class="rounded-lg px-3 py-2.5 text-sm font-medium transition
+                            {{ request()->routeIs('products.*')
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
                             <span class="mr-1">📦</span> Productos
                         </a>
 
                         <a href="{{ route('categories.index') }}"
-                           class="rounded-lg px-3 py-2.5 text-sm font-medium transition
-                           {{ request()->routeIs('categories.*')
-                               ? 'bg-emerald-500 text-white shadow-sm'
-                               : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
+                            class="rounded-lg px-3 py-2.5 text-sm font-medium transition
+                            {{ request()->routeIs('categories.*')
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
                             <span class="mr-1">▦</span> Categorías
                         </a>
 
                         <a href="{{ route('animals.index') }}"
-                           class="rounded-lg px-3 py-2.5 text-sm font-medium transition
-                           {{ request()->routeIs('animals.*')
-                               ? 'bg-emerald-500 text-white shadow-sm'
-                               : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
+                            class="rounded-lg px-3 py-2.5 text-sm font-medium transition
+                            {{ request()->routeIs('animals.*')
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : 'text-emerald-100 hover:bg-emerald-900 hover:text-white' }}">
                             <span class="mr-1">🐄</span> Animales
                         </a>
 
@@ -109,6 +109,10 @@
                             <div class="absolute right-0 mt-3 w-56 overflow-hidden
                                         rounded-xl border border-slate-200 bg-white
                                         py-2 text-slate-700 shadow-xl">
+                                <a href="{{ route('expenses.index') }}" 
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    💰 Gastos
+                                </a>
 
                                 <a href="{{ route('purchases.index') }}"
                                 class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
@@ -289,6 +293,11 @@
 
                             <div class="mt-1 ml-3 grid gap-1 border-l-2
                                         border-emerald-700 pl-3">
+
+                                <a href="{{ route('expenses.index') }}" 
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    💰 &nbsp; Gastos
+                                </a>
 
                                 <a href="{{ route('purchases.index') }}"
                                 class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">

@@ -33,6 +33,7 @@ class AuditLog extends Model
             User::class         => 'Usuario',
             Supplier::class => 'Proveedor',
             Purchase::class => 'Compra',
+            Expense::class => 'Gasto',
         ];
     }
 

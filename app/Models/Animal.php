@@ -37,6 +37,11 @@ class Animal extends Model
         return $this->hasMany(AnimalRecord::class);
     }
 
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public function isLot(): bool
     {
         return $this->type === 'lot';
@@ -93,7 +98,7 @@ class Animal extends Model
      */
     public function stats(): array
     {
-        $this->loadMissing('records.product');
+        $this->loadMissing('records.product', 'expenses');
         $records = $this->records;
 
         $heads = fn (string $type) => (int) $records->where('type', $type)->sum('heads');
@@ -109,7 +114,8 @@ class Animal extends Model
         $purchase = (float) $this->purchase_cost + (float) $records->where('type', 'entry')->sum('amount');
         $feedCost = (float) $records->where('type', 'feeding')->sum($consumption);
         $healthCost = (float) $records->whereIn('type', ['vaccine', 'treatment'])->sum($consumption);
-        $totalCost = $purchase + $feedCost + $healthCost;
+        $otherCosts = (float) $this->expenses->sum('amount');
+        $totalCost = $purchase + $feedCost + $healthCost + $otherCosts;
 
         $missingPrices = $records->filter(
             fn ($r) => in_array($r->type, ['feeding', 'vaccine', 'treatment'], true)
@@ -186,7 +192,7 @@ class Animal extends Model
             $feedKg += (float) $r->product_quantity * $factor;
         }
 
-        $productionCost = $feedCost + $healthCost;
+        $productionCost = $feedCost + $healthCost + $otherCosts;
         $fcr = ($totalGain && $feedKg > 0) ? round($feedKg / $totalGain, 2) : null;
         $costPerKgGain = ($totalGain && $productionCost > 0) ? round($productionCost / $totalGain, 2) : null;
 
@@ -218,6 +224,7 @@ class Animal extends Model
             'purchase'         => $purchase,
             'feed_cost'        => $feedCost,
             'health_cost'      => $healthCost,
+            'other_costs'      => $otherCosts,
             'total_cost'       => $totalCost,
             'cost_per_head'    => ($entered > 0 && $totalCost > 0) ? $totalCost / $entered : null,
             'revenue'          => $revenue,

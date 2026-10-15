@@ -18,6 +18,7 @@
             'price_mode' => 'Modo de precio', 'unit_price' => 'Precio unitario',
             'product_id' => 'Producto (id)', 'product_quantity' => 'Cantidad usada', 'next_due_date' => 'Próximo control',
             'batch_id' => 'Faena', 'quantity' => 'Cantidad',
+            'spent_at' => 'Fecha del gasto', 'category' => 'Categoría del gasto', 'supplier_id' => 'Proveedor (id)',
         ];
 
         $eventLabel = ['created' => 'Creó', 'updated' => 'Modificó', 'deleted' => 'Eliminó'];

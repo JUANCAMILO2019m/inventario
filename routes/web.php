@@ -16,6 +16,7 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReorderController;
+use App\Http\Controllers\ExpenseController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -51,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchases', PurchaseController::class)->only(['index', 'show']);
     Route::get('/expirations', [ExpirationController::class, 'index'])->name('expirations.index');
     Route::get('/reorder', [ReorderController::class, 'index'])->name('reorder.index');
+    Route::get('/expenses/export', [ExpenseController::class, 'export'])->name('expenses.export');
+    Route::resource('expenses', ExpenseController::class)->only(['index']);
 
     // Escritura de productos, categorías, movimientos, proveedores y vencimientos
     Route::middleware('can:modify-inventory')->group(function () {
@@ -58,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['index']);
         Route::resource('products.movements', StockMovementController::class)->only(['store']);
         Route::resource('suppliers', SupplierController::class)->except(['index', 'show']);
+        Route::resource('expenses', ExpenseController::class)->except(['index', 'show']);
         Route::post('/expirations', [ExpirationController::class, 'store'])->name('expirations.store');
         Route::post('/expirations/{batch}/expire', [ExpirationController::class, 'expire'])->name('expirations.expire');
         Route::delete('/expirations/{batch}', [ExpirationController::class, 'destroy'])->name('expirations.destroy');

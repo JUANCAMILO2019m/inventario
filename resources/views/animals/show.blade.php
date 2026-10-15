@@ -151,7 +151,7 @@
                 <p class="text-sm text-gray-500">Costos totales</p>
                 <p class="text-xl font-bold">{{ $money($stats['total_cost']) }}</p>
                 <p class="text-xs text-gray-500 mt-1">
-                    Compra {{ $money($stats['purchase']) }} · Alimento {{ $money($stats['feed_cost']) }} · Sanidad {{ $money($stats['health_cost']) }}
+                    Compra {{ $money($stats['purchase']) }} · Alimento {{ $money($stats['feed_cost']) }} · Sanidad {{ $money($stats['health_cost']) }} · Otros gastos {{ $money($stats['other_costs']) }}
                     @if ($animal->isLot() && $stats['cost_per_head'] !== null)
                         · {{ $money($stats['cost_per_head']) }} por cabeza
                     @endif
@@ -185,7 +185,7 @@
                 <p class="text-xl font-bold">
                     {{ $stats['cost_per_kg_gain'] !== null ? $money($stats['cost_per_kg_gain']) : '—' }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">Alimento y sanidad</p>
+                <p class="text-xs text-gray-500 mt-1">Alimento, sanidad y otros gastos</p>
             </div>
         </div>
 
@@ -226,6 +226,8 @@
     </div>
     
     @include('animals._charts')
+
+    @include('animals._expenses')
     
     @if ($animal->description)
         <div class="bg-white shadow rounded p-4 mb-6">
