@@ -25,3 +25,10 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Archivos y carpetas de Obsidian
+.obsidian/
+**/.obsidian/
+obsidian/
+**/obsidian/
+graphify-out/
+**/graphify-out/

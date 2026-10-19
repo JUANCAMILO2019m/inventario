@@ -34,6 +34,7 @@ class AuditLog extends Model
             Supplier::class => 'Proveedor',
             Purchase::class => 'Compra',
             Expense::class => 'Gasto',
+            StockCount::class => 'Conteo de inventario',
         ];
     }
 

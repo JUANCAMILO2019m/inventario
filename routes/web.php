@@ -17,6 +17,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReorderController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\StockCountController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -33,6 +34,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/animals/{animal}/records/{record}/payment', [AnimalRecordController::class, 'addPayment'])->name('animals.records.payment');
         Route::post('/animals/{animal}/faenas', [AnimalFaenaController::class, 'store'])->name('animals.faenas.store');
         Route::delete('/animals/{animal}/faenas/{batch}', [AnimalFaenaController::class, 'destroy'])->name('animals.faenas.destroy');
+        Route::get('/counts/create', [StockCountController::class, 'create'])->name('counts.create');
+        Route::post('/counts', [StockCountController::class, 'store'])->name('counts.store');
+        Route::post('/counts/{count}/save', [StockCountController::class, 'save'])->name('counts.save');
+        Route::get('/counts/{count}/review', [StockCountController::class, 'review'])->name('counts.review');
+        Route::post('/counts/{count}/apply', [StockCountController::class, 'apply'])->name('counts.apply');
+        Route::post('/counts/{count}/cancel', [StockCountController::class, 'cancel'])->name('counts.cancel');
 
         Route::resource('purchases', PurchaseController::class)->only(['create', 'store']);
         Route::post('/purchases/{purchase}/cancel', [PurchaseController::class, 'cancel'])->name('purchases.cancel');
@@ -51,9 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class)->only(['index']);
     Route::resource('purchases', PurchaseController::class)->only(['index', 'show']);
     Route::get('/expirations', [ExpirationController::class, 'index'])->name('expirations.index');
+    Route::get('/counts', [StockCountController::class, 'index'])->name('counts.index');
+    Route::get('/counts/{count}/export', [StockCountController::class, 'export'])->name('counts.export');
+    Route::get('/counts/{count}', [StockCountController::class, 'show'])->name('counts.show');
     Route::get('/reorder', [ReorderController::class, 'index'])->name('reorder.index');
     Route::get('/expenses/export', [ExpenseController::class, 'export'])->name('expenses.export');
     Route::resource('expenses', ExpenseController::class)->only(['index']);
+
 
     // Escritura de productos, categorías, movimientos, proveedores y vencimientos
     Route::middleware('can:modify-inventory')->group(function () {

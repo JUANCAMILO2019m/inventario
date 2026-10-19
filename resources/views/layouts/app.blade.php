@@ -114,6 +114,11 @@
                                     💰 Gastos
                                 </a>
 
+                                <a href="{{ route('counts.index') }}" 
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    📊 Conteo Inventario
+                                </a>
+
                                 <a href="{{ route('purchases.index') }}"
                                 class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
                                     🛒 Compras
@@ -297,6 +302,11 @@
                                 <a href="{{ route('expenses.index') }}" 
                                 class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
                                     💰 &nbsp; Gastos
+                                </a>
+
+                                <a href="{{ route('counts.index') }}" 
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    📊 &nbsp; Conteo Inventario
                                 </a>
 
                                 <a href="{{ route('purchases.index') }}"
