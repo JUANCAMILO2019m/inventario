@@ -17,6 +17,24 @@ concurrency:
 
 jobs:
   import:
+    diagnose-windows:
+    name: Diagnosticar DANE desde Windows
+    runs-on: windows-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Probar conexion HTTPS con DANE
+        shell: pwsh
+        run: |
+          Write-Host "Probando acceso al WSDL desde Windows..."
+
+          curl.exe -L -v `
+            --connect-timeout 30 `
+            --max-time 60 `
+            "https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL" `
+            -o NUL
+
+          Write-Host "Prueba finalizada."
     name: Importar precios del DANE
     runs-on: ubuntu-latest
     timeout-minutes: 120
