@@ -1,0 +1,66 @@
+
+name: Actualización automática SIPSA
+
+on:
+  schedule:
+    # Todos los días a las 7:00 a. m. Colombia (12:00 UTC)
+    - cron: '0 12 * * *'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sipsa-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    name: Importar precios del DANE
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      APP_ENV: production
+      APP_KEY: ${{ secrets.APP_KEY }}
+
+      DB_CONNECTION: mysql
+      DB_HOST: ${{ secrets.TIDB_HOST }}
+      DB_PORT: '4000'
+      DB_DATABASE: ${{ secrets.TIDB_DATABASE }}
+      DB_USERNAME: ${{ secrets.TIDB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.TIDB_PASSWORD }}
+
+      # Certificados raíz del sistema Ubuntu
+      MYSQL_ATTR_SSL_CA: /etc/ssl/certs/ca-certificates.crt
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, xml, xmlreader, curl, pdo_mysql, fileinfo
+          coverage: none
+
+      - name: Instalar dependencias Laravel
+        run: |
+          composer install \
+            --no-interaction \
+            --prefer-dist \
+            --no-progress \
+            --no-dev \
+            --optimize-autoloader
+
+      - name: Verificar conexión con TiDB
+        run: php artisan db:show --database=mysql
+
+      - name: Importar datos SIPSA
+        run: php artisan sipsa:import --download --days=400
+
+      - name: Limpiar caché de configuración
+        if: always()
+        run: php artisan config:clear || true

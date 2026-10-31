@@ -29,6 +29,7 @@ class ImportSipsaPrices extends Command
     public function handle(): int
     {
         $days = max(0, (int) $this->option('days'));
+        $temporaryDownload = false;
 
         if ($this->option('download')) {
             $file = $this->download();
@@ -36,17 +37,21 @@ class ImportSipsaPrices extends Command
             if ($file === null) {
                 return self::FAILURE;
             }
+
+            $temporaryDownload = true;
+
         } elseif ($this->option('file')) {
             $file = (string) $this->option('file');
+
         } else {
             $file = $this->latestFile();
 
             if ($file === null) {
-                $this->error('No hay archivos descargados. Usa --download para bajar la respuesta de DANE.');
+                $this->error('No hay archivos XML disponibles.');
                 return self::FAILURE;
             }
 
-            $this->line('Usando el archivo más reciente: ' . $file);
+            $this->line('Usando archivo: ' . $file);
         }
 
         if (!is_file($file)) {
@@ -54,9 +59,20 @@ class ImportSipsaPrices extends Command
             return self::FAILURE;
         }
 
-        $this->line(sprintf('Tamaño del archivo: %.1f MB', filesize($file) / 1048576));
+        try {
+            $this->line(sprintf(
+                'Tamaño del archivo: %.1f MB',
+                filesize($file) / 1048576
+            ));
 
-        return $this->import($file, $days);
+            return $this->import($file, $days);
+
+        } finally {
+            if ($temporaryDownload && is_file($file)) {
+                @unlink($file);
+                $this->info('Archivo XML temporal eliminado.');
+            }
+        }
     }
 
     private function latestFile(): ?string
@@ -70,16 +86,21 @@ class ImportSipsaPrices extends Command
 
     private function download(): ?string
     {
-        Storage::disk('local')->makeDirectory('sipsa');
+        $path = tempnam(sys_get_temp_dir(), 'sipsa_');
 
-        $path = Storage::disk('local')->path('sipsa/' . self::METHOD . '_' . now()->format('Ymd_His') . '.xml');
+        if ($path === false) {
+            $this->error('No se pudo crear el archivo temporal.');
+            return null;
+        }
 
         $envelope = '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ws="' . self::SOAP_NS . '">'
-            . '<soap:Body><ws:' . self::METHOD . '/></soap:Body></soap:Envelope>';
+            . '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" '
+            . 'xmlns:ws="' . self::SOAP_NS . '">'
+            . '<soap:Body><ws:' . self::METHOD . '/></soap:Body>'
+            . '</soap:Envelope>';
 
-        $this->info('Descargando la respuesta completa de DANE (puede pesar más de 100 MB y tardar varios minutos)...');
-        $this->line('No cierres la consola. El archivo se conserva en disco: no lo borres.');
+        $this->info('Descargando datos SIPSA del DANE...');
+        $this->line('El archivo se eliminará al finalizar la importación.');
 
         $last = 0;
         $startedAt = microtime(true);
@@ -87,48 +108,65 @@ class ImportSipsaPrices extends Command
         $progress = function ($total, $downloaded) use (&$last, $startedAt) {
             if ($downloaded - $last >= 5 * 1048576) {
                 $last = $downloaded;
+
                 $this->output->write(sprintf(
-                    "\r  Recibidos %.0f MB en %d s   ",
+                    "\rRecibidos %.1f MB en %d segundos",
                     $downloaded / 1048576,
                     (int) (microtime(true) - $startedAt)
                 ));
             }
         };
 
-        $complete = false;
-
         try {
             $response = Http::withOptions([
-                    'sink'            => $path,
-                    'progress'        => $progress,
-                    'connect_timeout' => 30,
-                    'timeout'         => 3600,
-                ])
-                ->withBody($envelope, 'application/soap+xml; charset=utf-8')
-                ->post(self::ENDPOINT);
+                'sink' => $path,
+                'progress' => $progress,
+                'connect_timeout' => 30,
+                'timeout' => 3600,
+            ])
+            ->withBody($envelope, 'application/soap+xml; charset=utf-8')
+            ->post(self::ENDPOINT);
 
-            $complete = $response->ok();
+            $this->newLine();
+
+            if (!$response->successful()) {
+                $this->error(
+                    'Error HTTP al descargar SIPSA: ' . $response->status()
+                );
+
+                @unlink($path);
+                return null;
+            }
+
+            clearstatcache(true, $path);
+
+            $size = is_file($path) ? filesize($path) : 0;
+
+            if ($size === 0) {
+                $this->error('La descarga no produjo datos.');
+                @unlink($path);
+                return null;
+            }
+
+            $this->info(sprintf(
+                'Descarga completada: %.1f MB',
+                $size / 1048576
+            ));
+
+            return $path;
+
         } catch (\Throwable $e) {
             $this->newLine();
-            $this->error('La descarga se interrumpió: ' . mb_substr($e->getMessage(), 0, 200));
-        }
 
-        $this->newLine();
-        clearstatcache(true, $path);
-        $size = is_file($path) ? (int) filesize($path) : 0;
+            $this->error(
+                'Error durante la descarga: ' .
+                mb_substr($e->getMessage(), 0, 200)
+            );
 
-        if ($size === 0) {
-            $this->error('No llegó ningún dato.');
+            @unlink($path);
+
             return null;
         }
-
-        $this->line(sprintf('Archivo: %s (%.1f MB)', $path, $size / 1048576));
-
-        if (!$complete) {
-            $this->warn('La descarga quedó incompleta: se importará lo que alcanzó a llegar.');
-        }
-
-        return $path;
     }
 
     private function import(string $file, int $days): int
@@ -137,6 +175,16 @@ class ImportSipsaPrices extends Command
 
         $this->newLine();
         $this->info('Importando' . ($cutoff ? " los datos desde {$cutoff}" : ' todos los datos') . '...');
+
+        if (!$this->validateXml($file)) {
+            $this->error(
+                'El XML está incompleto, dañado o no contiene registros SIPSA válidos.'
+            );
+
+            return self::FAILURE;
+        }
+
+        $this->info('XML validado correctamente. Iniciando importación...');
 
         $previous = libxml_use_internal_errors(true);
         $reader = new XMLReader();
@@ -243,6 +291,59 @@ class ImportSipsaPrices extends Command
 
         return self::SUCCESS;
     }
+
+    private function validateXml(string $file): bool
+    {
+        $previous = libxml_use_internal_errors(true);
+
+        libxml_clear_errors();
+
+        $reader = new XMLReader();
+
+        if (!$reader->open(
+            $file,
+            null,
+            LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING
+        )) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+
+            return false;
+        }
+
+        $records = 0;
+
+        try {
+            while ($reader->read()) {
+                if (
+                    $reader->nodeType === XMLReader::ELEMENT &&
+                    $reader->localName === 'return'
+                ) {
+                    $records++;
+                }
+            }
+
+            $errors = libxml_get_errors();
+
+            $valid = $records > 0;
+
+            foreach ($errors as $error) {
+                if ($error->level >= LIBXML_ERR_ERROR) {
+                    $valid = false;
+                    break;
+                }
+            }
+
+            return $valid;
+
+        } finally {
+            $reader->close();
+
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
+    }
+
 
     private function mapRow(DOMElement $node): ?array
     {
