@@ -58,7 +58,8 @@ jobs:
       - name: Verificar conexión con TiDB
         run: php artisan db:show --database=mysql
       
-      - name: Diagnosticar conexion HTTPS con DANE
+        - name: Diagnosticar conexion HTTPS con DANE
+        continue-on-error: true
         run: |
           echo "Probando acceso al WSDL..."
           curl -v --http1.1 \
@@ -68,7 +69,7 @@ jobs:
             -o /tmp/sipsa.wsdl
 
           echo "Comprobando archivo WSDL..."
-          ls -lh /tmp/sipsa.wsdl
+          ls -lh /tmp/sipsa.wsdl || true
 
       - name: Probar conexion TLS 1.2 con DANE
         run: |
