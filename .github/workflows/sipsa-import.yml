@@ -36,9 +36,11 @@ jobs:
       MYSQL_ATTR_SSL_CA: /etc/ssl/certs/ca-certificates.crt
 
     steps:
+      # 1. Descargar repositorio
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
+      # 2. Configurar PHP
       - name: Configurar PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
@@ -46,6 +48,7 @@ jobs:
           extensions: mbstring, dom, xml, xmlreader, curl, pdo_mysql, fileinfo
           coverage: none
 
+      # 3. Instalar dependencias
       - name: Instalar dependencias Laravel
         run: |
           composer install \
@@ -55,14 +58,18 @@ jobs:
             --no-dev \
             --optimize-autoloader
 
+      # 4. Verificar conexión con TiDB
       - name: Verificar conexión con TiDB
         run: php artisan db:show --database=mysql
-      
-        - name: Diagnosticar conexion HTTPS con DANE
+
+      # 5. Diagnosticar conexión HTTPS normal con DANE
+      - name: Diagnosticar conexion HTTPS con DANE
         continue-on-error: true
         run: |
           echo "Probando acceso al WSDL..."
-          curl -v --http1.1 \
+
+          curl -v \
+            --http1.1 \
             --connect-timeout 30 \
             --max-time 60 \
             "https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL" \
@@ -71,6 +78,7 @@ jobs:
           echo "Comprobando archivo WSDL..."
           ls -lh /tmp/sipsa.wsdl || true
 
+      # 6. Diagnosticar conexión TLS 1.2
       - name: Probar conexion TLS 1.2 con DANE
         run: |
           echo "Probando TLS 1.2..."
@@ -84,12 +92,16 @@ jobs:
             "https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL" \
             -o /tmp/sipsa-tls12.wsdl
 
-          echo "Resultado:"
+          echo "Comprobando resultado..."
           ls -lh /tmp/sipsa-tls12.wsdl
 
-      - name: Importar datos SIPSA
-        run: php artisan sipsa:import --download --days=400
+      # 7. Importación pausada durante el diagnóstico
+      # Se habilitará cuando confirmemos la conexión con el DANE.
+      #
+      # - name: Importar datos SIPSA
+      #   run: php artisan sipsa:import --download --days=400
 
+      # 8. Limpiar caché de configuración
       - name: Limpiar caché de configuración
         if: always()
         run: php artisan config:clear || true
