@@ -69,7 +69,23 @@ jobs:
 
           echo "Comprobando archivo WSDL..."
           ls -lh /tmp/sipsa.wsdl
-          
+
+      - name: Probar conexion TLS 1.2 con DANE
+        run: |
+          echo "Probando TLS 1.2..."
+
+          curl -v \
+            --tlsv1.2 \
+            --tls-max 1.2 \
+            --http1.1 \
+            --connect-timeout 30 \
+            --max-time 60 \
+            "https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL" \
+            -o /tmp/sipsa-tls12.wsdl
+
+          echo "Resultado:"
+          ls -lh /tmp/sipsa-tls12.wsdl
+
       - name: Importar datos SIPSA
         run: php artisan sipsa:import --download --days=400
 
