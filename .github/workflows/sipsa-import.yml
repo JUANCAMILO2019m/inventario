@@ -57,7 +57,19 @@ jobs:
 
       - name: Verificar conexión con TiDB
         run: php artisan db:show --database=mysql
+      
+      - name: Diagnosticar conexion HTTPS con DANE
+        run: |
+          echo "Probando acceso al WSDL..."
+          curl -v --http1.1 \
+            --connect-timeout 30 \
+            --max-time 60 \
+            "https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL" \
+            -o /tmp/sipsa.wsdl
 
+          echo "Comprobando archivo WSDL..."
+          ls -lh /tmp/sipsa.wsdl
+          
       - name: Importar datos SIPSA
         run: php artisan sipsa:import --download --days=400
 
