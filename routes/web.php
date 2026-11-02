@@ -19,6 +19,7 @@ use App\Http\Controllers\ReorderController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StockCountController;
 use App\Http\Controllers\PriceReferenceController;
+use Illuminate\Support\Facades\Http;//añadido para la prueba de la api
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -66,6 +67,42 @@ Route::middleware('auth')->group(function () {
     Route::get('/prices', [PriceReferenceController::class, 'index'])->name('prices.index');
     Route::get('/prices/{code}', [PriceReferenceController::class, 'show'])->whereNumber('code')->name('prices.show');
     Route::get('/expenses/export', [ExpenseController::class, 'export'])->name('expenses.export');
+
+    Route::get('/diagnostico-sipsa/{token}', function ($token) {
+
+        $expectedToken = env('SIPSA_DIAGNOSTIC_TOKEN');
+
+        abort_unless(
+            $expectedToken && hash_equals($expectedToken, $token),
+            404
+        );
+
+        try {
+
+            $response = Http::connectTimeout(15)
+                ->timeout(60)
+                ->get(
+                    'https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL'
+                );
+
+            return response()->json([
+                'conexion' => 'establecida',
+                'http_status' => $response->status(),
+                'correcto' => $response->successful(),
+                'content_type' => $response->header('Content-Type'),
+                'bytes_recibidos' => strlen($response->body()),
+            ]);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'conexion' => 'fallida',
+                'error' => get_class($e),
+                'mensaje' => $e->getMessage(),
+            ], 502);
+        }
+    });
+
     Route::resource('expenses', ExpenseController::class)->only(['index']);
 
 
