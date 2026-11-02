@@ -1,0 +1,55 @@
+name: Actualizar precios SIPSA
+
+on:
+  schedule:
+    - cron: '0 20 * * *'   # 15:00 hora de Colombia
+  workflow_dispatch:
+
+concurrency:
+  group: sipsa-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, dom, simplexml, xmlreader, xmlwriter, curl, openssl, pdo_mysql, gd, zip, bcmath, exif, fileinfo, tokenizer, ctype
+          coverage: none
+
+      - name: Clave temporal de la aplicación
+        run: echo "APP_KEY=base64:$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: Instalar dependencias
+        run: composer install --no-dev --no-interaction --prefer-dist --no-progress
+
+      - name: Comprobar que DANE responde desde GitHub
+        run: |
+          code=$(curl -sS -m 60 -o /dev/null -w '%{http_code}' 'https://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL' || true)
+          echo "Respuesta de DANE: ${code}"
+          test "${code}" = "200"
+
+      - name: Sincronizar precios
+        env:
+          APP_ENV: production
+          APP_DEBUG: 'false'
+          LOG_CHANNEL: stderr
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          DB_CONNECTION: mysql
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_ATTR_SSL_CA: ${{ github.workspace }}/certs/isrgrootx1.pem
+        run: php artisan sipsa:sync

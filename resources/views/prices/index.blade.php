@@ -17,7 +17,7 @@
     @if ($empty ?? false)
         <div class="bg-white shadow rounded p-8 text-center text-gray-600">
             <p class="font-medium mb-1">Aún no hay precios cargados.</p>
-            <p class="text-sm">Desde la consola del proyecto ejecuta <code class="bg-gray-100 px-1 rounded">php artisan sipsa:import --download</code> para traerlos desde el DANE.</p>
+            <p class="text-sm">Desde la consola del proyecto ejecuta <code class="bg-gray-100 px-1 rounded">php artisan sipsa:sync</code> para traerlos desde el DANE.</p>
         </div>
     @else
         <form method="GET" action="{{ route('prices.index') }}"
