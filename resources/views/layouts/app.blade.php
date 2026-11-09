@@ -457,6 +457,6 @@
             }
         });
     </script>
-
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "73ef434683914d05a1461f8487e3c3c8"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
