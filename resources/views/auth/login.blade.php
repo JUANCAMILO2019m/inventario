@@ -24,6 +24,15 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
+        <!-- Cloudflare Turnstile -->
+        <div class="mt-4">
+            <div class="cf-turnstile"
+                data-sitekey="{{ config('services.turnstile.site_key') }}">
+            </div>
+
+            <x-input-error :messages="$errors->get('turnstile')" class="mt-2" />
+        </div>
+
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
@@ -44,4 +53,5 @@
             </x-primary-button>
         </div>
     </form>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </x-guest-layout>

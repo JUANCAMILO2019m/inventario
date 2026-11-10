@@ -8,6 +8,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -30,6 +32,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'cf-turnstile-response' => ['required', 'string'],
         ];
     }
 
@@ -41,6 +44,27 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+
+        try {
+            $response = Http::asForm()
+                ->timeout(5)
+                ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                    'secret' => config('services.turnstile.secret_key'),
+                    'response' => $this->input('cf-turnstile-response'),
+                    'remoteip' => $this->ip(),
+                ]);
+
+            if (!$response->successful() || !$response->json('success')) {
+                throw ValidationException::withMessages([
+                    'turnstile' => 'No se pudo verificar el desafío de seguridad. Inténtalo nuevamente.',
+                ]);
+            }
+
+        } catch (ConnectionException $exception) {
+            throw ValidationException::withMessages([
+                'turnstile' => 'No fue posible conectar con el servicio de seguridad. Inténtalo nuevamente.',
+            ]);
+        }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
