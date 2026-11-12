@@ -67,12 +67,25 @@ class LoginRequest extends FormRequest
         }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
-        }
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
+    }
+
+    // Comprobar si el usuario debe cambiar su contraseña.
+    $user = Auth::user();
+
+    if ($user && $user->must_change_password) {
+        Auth::logout();
+
+        throw ValidationException::withMessages([
+            'email' => 'Debes establecer una nueva contraseña utilizando el enlace enviado a tu correo electrónico antes de acceder a MiFincaInvent.',
+        ]);
+    }
+
+    RateLimiter::clear($this->throttleKey());
 
         RateLimiter::clear($this->throttleKey());
     }

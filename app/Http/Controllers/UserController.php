@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password as PasswordBroker;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -29,11 +31,43 @@ class UserController extends Controller
             'role' => 'required|in:superadmin,admin,personal',
         ]);
 
-        $data['password'] = bcrypt($data['password']);
+        // Crear el usuario y marcar que debe cambiar su contraseña.
+        $data['must_change_password'] = true;
 
-        User::create($data);
+        $user = User::create($data);
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado');
+        try {
+            // Enviar el enlace de restablecimiento mediante Laravel y Brevo.
+            $status = PasswordBroker::sendResetLink([
+                'email' => $user->email,
+            ]);
+
+            if ($status === PasswordBroker::RESET_LINK_SENT) {
+                return redirect()
+                    ->route('users.index')
+                    ->with(
+                        'success',
+                        'Usuario creado. Se envió el correo para establecer su contraseña personal.'
+                    );
+            }
+
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'warning',
+                    'Usuario creado, pero no se pudo generar el enlace. Verifica si puedes reenviarlo.'
+                );
+
+        } catch (Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'warning',
+                    'Usuario creado, pero ocurrió un error al enviar el correo. Revisa la configuración de Brevo.'
+                );
+        }
     }
 
     public function edit(User $user)

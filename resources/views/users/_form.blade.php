@@ -4,14 +4,14 @@
     <div>
         <label class="block text-sm font-medium mb-1">Nombre *</label>
         <input type="text" name="name" value="{{ old('name', $user->name ?? '') }}"
-               class="w-full rounded border border-gray-300 px-3 py-2" required>
+                class="w-full rounded border border-gray-300 px-3 py-2" required>
         @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
     <div>
         <label class="block text-sm font-medium mb-1">Correo *</label>
         <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}"
-               class="w-full rounded border border-gray-300 px-3 py-2" required>
+                class="w-full rounded border border-gray-300 px-3 py-2" required>
         @error('email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -20,7 +20,7 @@
             Contraseña {{ isset($user) ? '(dejar vacío para no cambiar)' : '*' }}
         </label>
         <input type="password" name="password" class="w-full rounded border border-gray-300 px-3 py-2"
-               {{ isset($user) ? '' : 'required' }}>
+                {{ isset($user) ? '' : 'required' }}>
         @error('password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
