@@ -22,6 +22,9 @@ use App\Http\Controllers\PriceReferenceController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
+// Política de privacidad: acceso público
+Route::view('/politica-de-privacidad', 'legal.privacidad')
+    ->name('privacy.policy');   
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

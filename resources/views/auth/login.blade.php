@@ -53,5 +53,13 @@
             </x-primary-button>
         </div>
     </form>
+    <!-- Política de Privacidad -->
+    <div class="mt-6 text-center">
+        <a href="{{ route('privacy.policy') }}"
+            class="text-sm text-gray-600 underline hover:text-gray-900">
+            Política de Privacidad
+        </a>
+    </div>
+    
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </x-guest-layout>
