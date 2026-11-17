@@ -171,6 +171,7 @@ class AnimalController extends Controller
             'purchase_cost'  => 'nullable|numeric|min:0|decimal:0,2',
             'entry_date'     => 'nullable|date',
             'initial_weight' => 'nullable|numeric|min:0|decimal:0,2',
+            'target_weight' => 'nullable|numeric|min:0.01|decimal:0,2',
         ];
 
         if (!$animal) {

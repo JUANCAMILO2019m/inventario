@@ -19,6 +19,7 @@ use App\Http\Controllers\ReorderController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StockCountController;
 use App\Http\Controllers\PriceReferenceController;
+use App\Http\Controllers\ForecastController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -68,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reorder', [ReorderController::class, 'index'])->name('reorder.index');
     Route::get('/prices', [PriceReferenceController::class, 'index'])->name('prices.index');
     Route::get('/prices/{code}', [PriceReferenceController::class, 'show'])->whereNumber('code')->name('prices.show');
+    Route::get('/forecasts', [ForecastController::class, 'index'])->name('forecasts.index');
     Route::get('/expenses/export', [ExpenseController::class, 'export'])->name('expenses.export');
     Route::resource('expenses', ExpenseController::class)->only(['index']);
 

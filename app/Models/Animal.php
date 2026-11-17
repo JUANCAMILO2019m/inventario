@@ -15,6 +15,7 @@ class Animal extends Model
         'type', 'name', 'code', 'species', 'breed', 'sex',
         'birth_date', 'quantity', 'status', 'photo', 'description',
         'supplier', 'purchase_cost', 'entry_date', 'initial_weight', 'initial_quantity',
+        'target_weight',
     ];
 
     protected function casts(): array
@@ -24,6 +25,7 @@ class Animal extends Model
             'entry_date'     => 'date',
             'purchase_cost'  => 'float',
             'initial_weight' => 'float',
+            'target_weight' => 'float'
         ];
     }
 

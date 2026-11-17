@@ -149,6 +149,11 @@
                                     📦 Reabastecimiento
                                 </a>
 
+                                <a href="{{ route('forecasts.index') }}" 
+                                class="block px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800">
+                                    📈 Predicciones
+                                </a>
+
                                 @can('manage-users')
                                     <div class="mx-3 my-1 border-t border-slate-100"></div>
 
@@ -342,6 +347,11 @@
                                 <a href="{{ route('reorder.index') }}" 
                                 class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
                                     📦 &nbsp; Reabastecimiento
+                                </a>
+
+                                <a href="{{ route('forecasts.index') }}" 
+                                class="rounded-lg px-4 py-3 text-sm text-emerald-100 transition hover:bg-emerald-900">
+                                    📈 &nbsp; Predicciones
                                 </a>
 
                                 @can('manage-users')

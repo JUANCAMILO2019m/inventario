@@ -117,6 +117,14 @@
     </div>
 
     <div>
+        <label class="block text-sm font-medium mb-1">Peso objetivo de venta por cabeza (kg)</label>
+        <input type="number" step="0.01" min="0" name="target_weight"
+                value="{{ old('target_weight', $animal->target_weight ?? '') }}" class="{{ $input }}">
+        <p class="text-xs text-gray-500 mt-1">Opcional. Sirve para estimar en qué fecha lo alcanzaría.</p>
+        @error('target_weight') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+    </div>
+
+    <div>
         <label class="block text-sm font-medium mb-1">Origen / Proveedor</label>
         <input type="text" name="supplier" value="{{ old('supplier', $animal->supplier ?? '') }}"
                 class="{{ $input }}">
